@@ -187,7 +187,6 @@ def integral_matrix(n, dx=1, C=0):
         raise ValueError('Bad length of {}'.format(n))
 # ----------------------------------------------------------
 
-# TODO: This is very slow and naive--need to speed up greatly!
 class TotalVariation(Derivative):
     def __init__(self, params):
         try:
@@ -202,17 +201,13 @@ class TotalVariation(Derivative):
         self._A = None
         self._res = None
 
-    def loss(self, f, I_m, D_m, y):
-        return np.sum(np.square(I_m@f - y))/2 + self.alpha*np.linalg.norm(D_m@f)
-
     def load(self, t, x):
         self._loaded = True
         self._t = t
         self._x = x
         self._D = derivative_matrix(len(t), t[1]-t[0])
         self._A = integral_matrix(len(t), t[1]-t[0])
-        self._res = optimize.minimize(self.loss, np.zeros_like(t),
-                                      args=(self._A, self._D, self._x), method='BFGS')
+        self._res = np.linalg.solve(self._A.T@self._A + self.alpha*self._D.T@self._D, self._A.T@self._x)
 
     def unload(self):
         self._loaded = False
@@ -220,16 +215,15 @@ class TotalVariation(Derivative):
         self._x = None
         self._D = None
         self._A = None
-        self._res = None
 
     def compute(self, t, x, i):
         self.load(t, x)
-        return self._res.x[i]
+        return self._res[i]
         
     def compute_for(self, t, x, indices):
         self.load(t, x)
         for i in indices:
-            yield self._res.x[i]
+            yield self._res[i]
 
 # ----------------------------------------------------------
 
