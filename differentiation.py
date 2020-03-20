@@ -47,6 +47,7 @@ class Derivative(abc.ABC):
 class FiniteDifference(Derivative):
     ''' Compute the numerical derivative of equally-spaced data using
     the Taylor series.
+
     Arguments:
         params['k']: the number of points around an index to use for the derivative
 
@@ -74,8 +75,10 @@ class FiniteDifference(Derivative):
 # ----------------------------------------------------------
 
 class Spectral(Derivative):
-    ''' Compute the numerical derivative by first computing the FFT. In Fourier 
+    '''
+    Compute the numerical derivative by first computing the FFT. In Fourier 
     space, derivatives are multiplication by i*phase; compute the IFFT after.
+
     Arguments:
         params['filter']: optional, maps frequencies to weights in Fourier space
     '''
@@ -106,10 +109,12 @@ class Spectral(Derivative):
 # ----------------------------------------------------------
 
 class SavitzkyGolay(Derivative):
-    '''Compute the numerical derivative by first finding the best 
+    '''
+    Compute the numerical derivative by first finding the best 
     (least-squares) polynomial of order m < 2k using the k points in
     the neighborhood [t-left, t+right]. The derivative is computed 
     from the coefficients of the polynomial.
+
     Arguments:
         params['left']: left edge of the window is t-left
         params['right']: right edge of the window is t+right
@@ -188,6 +193,16 @@ def integral_matrix(n, dx=1, C=0):
 # ----------------------------------------------------------
 
 class TotalVariation(Derivative):
+    '''
+    Compute the numerical derivative using Total Variational
+    Regularization,
+        min_u ||A u - t||_2^2 + \alpha ||D u||
+    where A is the linear integral operator and D is the linear
+    derivative operator.
+
+    Arguments:
+        params['alpha']: regularization hyper-parameter
+    '''
     def __init__(self, params):
         try:
             self.alpha = params['alpha']
@@ -207,6 +222,7 @@ class TotalVariation(Derivative):
         self._x = x
         self._D = derivative_matrix(len(t), t[1]-t[0])
         self._A = integral_matrix(len(t), t[1]-t[0])
+        # Compute everything.
         self._res = np.linalg.solve(self._A.T@self._A + self.alpha*self._D.T@self._D, self._A.T@self._x)
 
     def unload(self):
@@ -218,6 +234,7 @@ class TotalVariation(Derivative):
 
     def compute(self, t, x, i):
         self.load(t, x)
+        # TODO: Efficient one-off computation?
         return self._res[i]
         
     def compute_for(self, t, x, indices):
@@ -228,9 +245,11 @@ class TotalVariation(Derivative):
 # ----------------------------------------------------------
 
 class Spline(Derivative):
-    '''Compute the numerical derivative of y using a (Cubic) spline (the Cubic 
-    spline minimizes the curvature of the fit). Compute the derivative from 
-    the form of the known Spline polynomials.
+    '''
+    Compute the numerical derivative of data x using a (Cubic) spline (the 
+    Cubic  spline minimizes the curvature of the fit). Compute the derivative 
+    from the form of the known Spline polynomials.
+
     Arguments:
         params['order']: Default is cubic spline (3)
         params['smoothing']: Amount of smoothing
