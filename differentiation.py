@@ -12,6 +12,7 @@ import abc
 
 import scipy as sci
 from scipy import interpolate, integrate, optimize
+from sklearn.linear_model import Lasso
 
 
 class Derivative(abc.ABC):
@@ -48,7 +49,7 @@ class FiniteDifference(Derivative):
     ''' Compute the numerical derivative of equally-spaced data using
     the Taylor series.
 
-    Arguments:
+    Parameters:
         params['k']: the number of points around an index to use for the derivative
 
     '''
@@ -79,7 +80,7 @@ class Spectral(Derivative):
     Compute the numerical derivative by first computing the FFT. In Fourier 
     space, derivatives are multiplication by i*phase; compute the IFFT after.
 
-    Arguments:
+    Parameters:
         params['filter']: optional, maps frequencies to weights in Fourier space
     '''
     def __init__(self, params):
@@ -115,7 +116,7 @@ class SavitzkyGolay(Derivative):
     the neighborhood [t-left, t+right]. The derivative is computed 
     from the coefficients of the polynomial.
 
-    Arguments:
+    Parameters:
         params['left']: left edge of the window is t-left
         params['right']: right edge of the window is t+right
         params['order']: order of polynomial (m < points in window)
@@ -164,77 +165,177 @@ class SavitzkyGolay(Derivative):
 # -- Utility matrices --------------------------------------
 # -- Used for TotalVariation Derivatives, for example. -----
 # ----------------------------------------------------------
-def derivative_matrix(n, dx=1):
-    ''' Equi-spaced derivative via the central difference. '''
+def derivative_matrix(n, dx=1, order=1):
+    ''' 
+        Equi-spaced derivative via forward finite differences,
+        mapping R^n into R^(n-order).
+
+        Parameters:
+            n: 
+                Number of data points
+            dx: float
+                Width of x[k+1] - x[k]
+            order:
+                Order of derivative
+    '''
+    if n < 2:
+        raise ValueError('Bad length of {}'.format(n))
+
+    
+    if order == 1:
+        method = [-1,1]
+    elif order == 2:
+        method = [-1,2,-1]
+    elif order == 3:
+        method = [-1, 3, -3, 1]
+    else:
+        raise ValueError('Order {} unimplemented.'.format(order))
+    M = [method + [0]*(n-len(method))]
+    for row in range(n-len(method)):
+        M.append([0]*(row+1) + method + [0]*(n-len(method)-row-1))
+    return np.array(M)/dx**order
+
+def symmetric_derivative_matrix(n, dx=1):
+    ''' 
+        Equi-spaced derivative via central differences,
+        mapping R^n into R^n.
+
+        Parameters:
+            n: 
+                Number of data points
+            dx: float
+                Width of x[k+1] - x[k]
+    '''
+    if n < 2:
+        raise ValueError('Bad length of {}'.format(n))
+
     if n == 2:
         return np.array([[-1,1],
                          [-1,1]])/dx
-    elif n > 2:
+    else:
         M = [[-1, 1] + [0]*(n-2)]
         for row in range(0,n-2):
             M.append([0]*row + [-1/2,0,1/2] + [0]*(n-3-row))
         M.append([0]*(n-2) + [-1, 1])
         return np.array(M)/dx
-    else:
-        raise ValueError('Bad length of {}'.format(n))
 
-def integral_matrix(n, dx=1, C=0):
-    ''' Equi-spaced anti-derivative via the trapezoid rule '''
-    if n == 2:
+def integral_matrix(n, dx=1):
+    ''' 
+        Equi-spaced anti-derivative via the trapezoid rule with C
+        as the constant of integration, mapping R^n to R^n.
+
+        Parameters:
+            n: 
+                Number of data points
+            dx: float
+                Width of x[k+1] - x[k]
+
+    '''
+    if n == 1:
+        return np.array([])
+    elif n == 2:
         return np.array([[0,0],
-                         [1,1]])*dx/2 + C
+                         [1,1]])*dx/2
     elif n > 2:
         M = [[0]*n]
         for row in range(0, n-1):
             M.append([1] + [2]*(row) + [1] + [0]*(n-row-2))
-        return np.array(M)*dx/2 + C
+        return np.array(M)*dx/2
     else:
         raise ValueError('Bad length of {}'.format(n))
 # ----------------------------------------------------------
-
 class TotalVariation(Derivative):
     '''
-    Compute the numerical derivative using Total Variational
-    Regularization,
-        min_u ||A u - t||_2^2 + \alpha ||D u||
-    where A is the linear integral operator and D is the linear
-    derivative operator.
+    Compute the numerical derivative using Total Squared
+    Variations,
+        min_u (1/2)||A u - t||_2^2 + \alpha ||D^order u||_1
+    where A is the linear integral operator, D is the linear
+    derivative operator, and T is the time-span of the integral.
 
-    Arguments:
+    If order=1, this is the total-variational derivative. For
+    general order, this is known as the polynomial-trend-filtered
+    derivative.
+
+    Parameters:
+        params['order']: order of the inner LASSO derivative 
         params['alpha']: regularization hyper-parameter
     '''
     def __init__(self, params):
         try:
             self.alpha = params['alpha']
+            self.order = params['order']
         except:
             raise ValueError("Derivative TotalVariation missing required parameter.")
 
+        self.lasso_params = params.get('lasso_params', {})
         self._loaded = False
         self._t = None
         self._x = None
-        self._D = None
-        self._A = None
+        self._model = None
         self._res = None
 
     def load(self, t, x):
         self._loaded = True
         self._t = t
         self._x = x
-        self._D = derivative_matrix(len(t), t[1]-t[0])
-        self._A = integral_matrix(len(t), t[1]-t[0])
-        # Compute everything.
-        self._res = np.linalg.solve(self._A.T@self._A + self.alpha*self._D.T@self._D, self._A.T@self._x)
+
+        # I: Integrals and derivatives
+        n = len(self._t)
+        dt = self._t[1]-self._t[0]
+        # Note: Penalize jump count with + np.identity(n)[:-order, :]
+        D = derivative_matrix(n, dt, order=self.order)
+        I = integral_matrix(n, dt)
+        I_T = I[::-1,::-1] # L2 adjoint of integral (slightly different than transpose)
+
+        # II: Compute null space of derivative
+        if self.order==1:
+            null_space = np.ones([1,n])/np.sqrt(n)
+        elif self.order==2:
+            v1 = np.ones(n)/np.sqrt(n)
+            v2 = np.linspace(1,-1,D.shape[1])
+            null_space = np.vstack([v1, v2/np.sqrt(v2**2)])
+        elif self.order==3:
+            v1 = np.ones(n)/np.sqrt(n)
+            v2 = np.linspace(1,-1,D.shape[1])
+            v3 = -v2**2 + np.sum(v2**2)/n
+            null_space = np.vstack([v1, v2/np.sqrt(v2**2), v3/np.sqrt(v3**2)])
+        else:
+            null_space = sp.linalg.null_space(D).T # Potential bottleneck! Computes SVD.
+        D_tilde = np.vstack([D, null_space])
+
+        # III: Compute workers X1 and X2
+        invD_tilde = np.linalg.inv(D_tilde)
+        XD_tilde = I.dot(invD_tilde)
+        XD_tilde_T = invD_tilde.T.dot(I_T)
+        X1, X2 = XD_tilde[:,:-1], XD_tilde[:,-1:]
+        X1_T, X2_T = XD_tilde_T[:-1,:], XD_tilde_T[-1:,:]
+
+        # IV: Compute projectors
+        # Note: X2.T@X2 is always small
+        X2_proj = np.linalg.inv(X2_T.dot(X2)).dot(X2_T)
+        P = X2.dot(X2_proj)
+        Proj = np.identity(n)-P # Note: Proj_T = Proj
+
+        # V: LASSO parameters; fit
+        A = Proj.dot(X1)
+        # A_T = X1_T.dot(Proj) ...can't give this to LASSO, unfortunately
+        b = Proj.dot(self._x-self._x[0])
+        self._model = Lasso(alpha=self.alpha/n, fit_intercept=False, **self.lasso_params)
+        self._model.fit(A, b)
+
+        # VI: Restore desired variables
+        theta1_hat = self._model.coef_
+        theta2_hat = X2_proj.dot(self._x-self._x[0]-X1.dot(theta1_hat))
+        self._res = invD_tilde.dot(np.hstack([theta1_hat,theta2_hat]))
 
     def unload(self):
         self._loaded = False
         self._t = None
         self._x = None
-        self._D = None
-        self._A = None
+        self._model = None
 
     def compute(self, t, x, i):
         self.load(t, x)
-        # TODO: Efficient one-off computation?
         return self._res[i]
         
     def compute_for(self, t, x, indices):
@@ -250,7 +351,7 @@ class Spline(Derivative):
     Cubic  spline minimizes the curvature of the fit). Compute the derivative 
     from the form of the known Spline polynomials.
 
-    Arguments:
+    Parameters:
         params['order']: Default is cubic spline (3)
         params['smoothing']: Amount of smoothing
         params['periodic']: Default is False
