@@ -43,6 +43,45 @@ class Derivative(abc.ABC):
         for i in indices:
             yield self.compute(t, x, i)
 
+    def D(self, X, t, axis=1):
+        '''Compute derivative along each dimension of X.
+        
+        Parameters:
+            t:
+                time-series values
+            X:
+                measurement values
+            axis: {0,1}. default 1
+                axis of X along which to differentiate
+        '''
+        # Cast
+        X = np.array(X)
+        flat = False
+        # Check shape and axis
+        if len(X.shape) == 1:
+            X = X.reshape(1,-1)
+            flat = True
+        elif len(X.shape) == 2:
+            if axis == 0:
+                X = X.T
+            elif axis == 1:
+                pass
+            else:
+                raise ValueError("Invalid axis.")
+        else:
+            raise ValueError("Invalid shape of X.")
+
+        if X.shape[1] != len(t):
+            raise ValueError("Desired X axis size does not match t size.")
+
+        # Differentiate
+        dX = np.array([list(self.compute_for(t, x, np.arange(len(t)))) for x in X])
+        if flat:
+            return dX.flatten()
+        else:
+            return dX if axis == 1 else dX.T
+            
+
 # ----------------------------------------------------------
 
 class FiniteDifference(Derivative):
