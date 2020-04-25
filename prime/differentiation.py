@@ -5,6 +5,11 @@ Created on Wed Sept 25 11:45:00 2019
 
 TODO:
 - optional (periodic) boundary conditions
+- Kalman filter derivative
+- refactor and simplify:
+    ~ Nec. for load and unload?
+    ~ More built-ins where available
+    ~ Best practice re: parameters?
 
 """
 import numpy as np

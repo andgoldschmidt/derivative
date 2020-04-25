@@ -1,0 +1,23 @@
+[tool.poetry]
+name = "prime"
+version = "0.1.0"
+description = "Numerical differentiation in python."
+authors = ["Andy Goldschmidt <andygold@uw.edu>"]
+license = "MIT"
+readme = "README.rst"
+
+
+[tool.poetry.dependencies]
+python = "^3.7"
+sphinx = "^3.0.2"
+numpy = "^1.18.3"
+scipy = "^1.4.1"
+
+
+[tool.poetry.dev-dependencies]
+pytest = "^5.2"
+
+
+[build-system]
+requires = ["poetry>=0.12"]
+build-backend = "poetry.masonry.api"
