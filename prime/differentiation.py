@@ -1,10 +1,3 @@
-# TODO:
-# - optional (periodic) boundary conditions
-# - Kalman filter derivative
-# - refactor and simplify:
-#     ~ Nec. for load and unload?
-#     ~ More built-ins where available
-#     ~ Best practice re: parameters?
 import abc
 import numpy as np
 
