@@ -17,7 +17,6 @@ sklearn = "^0.0"
 sphinx = {version="^3.0.2", optional = true}
 
 
-
 [tool.poetry.dev-dependencies]
 pytest = "^5.2"
 
