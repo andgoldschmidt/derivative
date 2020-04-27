@@ -5,27 +5,49 @@ import numpy as np
 class FiniteDifference(Derivative):
     def __init__(self, k, **kwargs):
         """
-        Compute the numerical derivative of equally-spaced data using the Taylor series.
+        Compute the symmetric numerical derivative of equally-spaced data using the Taylor series. Derivatives at the
+        boundaries are computed with the available reduction of the window or first order finite difference.
 
         Args:
-            k (int): The number of points around an index to use for the derivative.
+            k (int): Interpolate the data with a polynomial through the 2k+1 points x[i-k], ..., x[i], ... x[i+k]
+            **kwargs: Optional keyword arguments.
+
+        Keyword Args:
+            periodic (bool): If True, wrap the data. If False, compute edges separately. Default False.
         """
         self.k = k
+        self.periodic = kwargs.get('periodic', False)
+
+    @staticmethod
+    def _symfd(i, x, dt, k):
+        res = []
+        # Construct each coefficient from the Taylor series.
+        coefficient = 1
+        for j in range(1, k + 1):
+            coefficient *= (k - j + 1) / (k + j)
+            alpha_j = 2 * np.power(-1, j + 1) * coefficient
+            res.append(alpha_j * (x[(i + j) % len(x)] - x[(i - j) % len(x)]) / (2 * j) / dt)
+        return np.sum(res)
 
     def compute(self, t, x, i):
-        # Check boundaries (don't compute if outside)
-        if i - self.k < 0 or i + self.k > len(x) - 1:
-            return np.nan
-
         dt = t[1] - t[0]
-        res = []
-        # Construct the combinatorial coefficient from the Taylor series
-        coefficient = 1
-        for j in range(1, self.k + 1):
-            coefficient *= (self.k - j + 1) / (self.k + j)
-            alpha_j = 2 * np.power(-1, j + 1) * coefficient
-            res.append(alpha_j * (x[i + j] - x[i - j]) / (2 * j) / dt)
-        return np.sum(res)
+
+        if not self.periodic:
+            # Check for boundaries.
+            if i == 0:
+                return (x[i+1] - x[i])/dt
+            elif i == len(x) - 1:
+                return (x[i] - x[i-1])/dt
+
+            # Check for overflow.
+            left = i - self.k
+            right = (len(x) - 1) - (i + self.k)
+            overflow = min(left, right)
+            if overflow < 0:
+                return self._symfd(i, x, dt, self.k + overflow)
+
+        # Default behavior (periodic data, symmetric derivative)
+        return self._symfd(i, x, dt, self.k)
 
 
 class SavitzkyGolay(Derivative):
@@ -40,7 +62,6 @@ class SavitzkyGolay(Derivative):
             order:  order of polynomial (m < points in window)
         """
         # Note: Left and right have units (they do not count points)
-        # TODO: Default behavior?
         self.left = left
         self.right = right
         self.order = order
