@@ -15,33 +15,25 @@ class Spectral(Derivative):
         space, derivatives are multiplication by i*phase; compute the IFFT after.
 
         Args:
-            **kwargs: Arbitrary keyword arguments.
+            **kwargs: Optional keyword arguments.
 
         Keyword Args:
             filter: Optional. Maps frequencies to weights in Fourier space.
         """
         # Filter function. Default: Identity filter
         self.filter = kwargs.get('filter', np.vectorize(lambda f: 1))
-
-        self._loaded = False
         self._x_hat = None
         self._freq = None
 
-    def _load(self, t, x):
-        self._loaded = True
+    def _dglobal(self, t, x):
         self._x_hat = np.fft.fft(x)
         self._freq = np.fft.fftfreq(x.size, d=(t[1] - t[0]))
-
-    def _unload(self):
-        self._loaded = False
-        self._x_hat = None
-        self._freq = None
 
     def compute(self, t, x, i):
         return next(self.compute_for(t, x, [i]))
 
     def compute_for(self, t, x, indices):
-        self._load(t, x)
+        self._dglobal(t, x)
         res = np.fft.ifft(1j * 2 * np.pi * self._freq * self.filter(self._freq) * self._x_hat).real
         for i in indices:
             yield res[i]
@@ -61,36 +53,25 @@ class Spline(Derivative):
         self.order = kwargs.get('order', 3)
         self.periodic = kwargs.get('periodic', False)
 
-        self._loaded = False
         self._t = None
         self._x = None
         self._spl = None
 
-    def load(self, t, x):
+    def _global(self, t, x):
         self._loaded = True
         self._t = t
         self._x = x
         # returns (knots, coefficients, order)
         self._spl = interpolate.splrep(self._t, self._x, k=self.order, s=self.smoothing, per=self.periodic)
 
-    def unload(self):
-        self._loaded = False
-        self._t = None
-        self._x = None
-        self._spl = None
-
     def compute(self, t, x, i):
-        self.load(t, x)
+        self._global(t, x)
         return interpolate.splev(self._t[i], self._spl, der=1)
 
     def compute_for(self, t, x, indices):
-        self.load(t, x)
+        self._global(t, x)
         for i in indices:
             yield interpolate.splev(self._t[i], self._spl, der=1)
-
-    def compute_global(self, t, x):
-        self.load(t, x)
-        return lambda t0: interpolate.splev(t0, self._spl, der=1)
 
 
 class TotalVariation(Derivative):
@@ -114,13 +95,12 @@ class TotalVariation(Derivative):
         self.alpha = alpha
         self.kwargs = kwargs
 
-        self._loaded = False
         self._t = None
         self._x = None
         self._model = None
         self._res = None
 
-    def load(self, t, x):
+    def _global(self, t, x):
         self._loaded = True
         self._t = t
         self._x = x
@@ -174,17 +154,11 @@ class TotalVariation(Derivative):
         theta2_hat = X2_proj.dot(self._x - self._x[0] - X1.dot(theta1_hat))
         self._res = invDtilde.dot(np.hstack([theta1_hat, theta2_hat]))
 
-    def unload(self):
-        self._loaded = False
-        self._t = None
-        self._x = None
-        self._model = None
-
     def compute(self, t, x, i):
-        self.load(t, x)
+        self._global(t, x)
         return self._res[i]
 
     def compute_for(self, t, x, indices):
-        self.load(t, x)
+        self._global(t, x)
         for i in indices:
             yield self._res[i]
