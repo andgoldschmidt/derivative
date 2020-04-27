@@ -5,10 +5,11 @@ Numerical differentiation in python
 
 
 .. toctree::
-   :maxdepth: 2
-   :caption: Contents:
+    :maxdepth: 2
+    :caption: Contents:
 
-   license
+    modules
+    license
 
 
 Indices and tables

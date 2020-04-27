@@ -62,9 +62,9 @@ class SavitzkyGolay(Derivative):
         A simple symmetric version of the Savitzky-Galoy filter is available as scipy.signal.savgol_filter.
 
         Args:
-            left: left edge of the window is t-left
-            right: right edge of the window is t+right
-            order:  order of polynomial (m < points in window)
+            left (float): left edge of the window is t-left
+            right (float): right edge of the window is t+right
+            order (int):  order of polynomial (m < points in window)
             **kwargs: Optional keyword arguments.
 
         Keyword Args:
@@ -84,7 +84,7 @@ class SavitzkyGolay(Derivative):
     def compute(self, t, x, i):
         # Default edge behavior is to truncate the window.
         if self.use_iwindow:
-            i_l, i_r = max(0, i - self.left), min(i + self.right, len(t) - 1)
+            i_l, i_r = max(0., i - self.left), min(i + self.right, len(t) - 1)
         else:
             i_l, i_r = self._trunc_window(t, i)
 

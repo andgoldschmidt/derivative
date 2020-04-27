@@ -9,12 +9,12 @@ class Derivative(abc.ABC):
     def compute(self, t, x, i):
         """ Compute the derivative of x with respect to t at the index i of x, (dx/dt)[i].
 
-        Computation of a derivative should return np.nan if the implementation fails to compute a derivative at the
-        desired index.
+        Computation of a derivative should fail explicitely if the implementation is unable to compute a derivative at
+        the desired index. Used for global differentiation methods, for example.
 
         Args:
-            t (:obj: `ndarray` of float):  Ordered measurement times.
-            x (:obj: `ndarray` of float):  Ordered measurement values.
+            t (:obj:`ndarray` of float):  Ordered measurement times.
+            x (:obj:`ndarray` of float):  Ordered measurement values.
             i (int): Index i at which to compute (dx/dt)[i]
 
         Returns:
@@ -27,9 +27,9 @@ class Derivative(abc.ABC):
         desiring a more efficient computation over a list of indices.
 
         Args:
-            t (:obj: `ndarray` of float): Ordered measurement times.
-            x (:obj: `ndarray` of float): Ordered measurement values.
-            indices (:obj: `ndarray` of int): Indices i at which to compute (dx/dt)[i]
+            t (:obj:`ndarray` of float): Ordered measurement times.
+            x (:obj:`ndarray` of float): Ordered measurement values.
+            indices (:obj:`ndarray` of int): Indices i at which to compute (dx/dt)[i]
 
         Returns:
             Generator[float]: yields (dx/dt)[i] for i in indices
@@ -42,8 +42,8 @@ class Derivative(abc.ABC):
         Compute the derivative of measurements X taken at times t.
         
         Args:
-            t (:obj: `ndarray` of float): Ordered measurement times.
-            X  (:obj: `ndarray` of float): Ordered measurement values.
+            t (:obj:`ndarray` of float): Ordered measurement times.
+            X  (:obj:`ndarray` of float): Ordered measurement values.
             axis ({0,1}). axis of X along which to differentiate. default 1.
 
         Returns:

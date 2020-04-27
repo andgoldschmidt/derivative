@@ -9,10 +9,13 @@ readme = "README.rst"
 
 [tool.poetry.dependencies]
 python = "^3.7"
-sphinx = "^3.0.2"
 numpy = "^1.18.3"
 scipy = "^1.4.1"
 sklearn = "^0.0"
+
+# docs
+sphinx = {version="^3.0.2", optional = true}
+
 
 
 [tool.poetry.dev-dependencies]
