@@ -20,6 +20,18 @@ Numerical differentiation methods for python, including:
 
 These examples are intended to survey some common differentiation methods. The goal of this package is to bind these common differentiation methods to an easily implemented differentiation interface to encourage user adaptation.
 
+Usage:
+
+.. code-block:: python
+
+    from prime import FiniteDifference
+    import numpy as np
+
+    x = np.linspace(0,2*np.pi,100)
+    y = np.sin(x)
+    # Central differencing
+    dydx = FiniteDifference(1).d(y, x)
+
 
 References:
 
