@@ -1,5 +1,6 @@
 from .differentiation import Derivative
 import numpy as np
+from numpy.polynomial.polynomial import polyfit
 
 
 class FiniteDifference(Derivative):
@@ -7,6 +8,8 @@ class FiniteDifference(Derivative):
         """
         Compute the symmetric numerical derivative of equally-spaced data using the Taylor series. Derivatives at the
         boundaries are computed with the available reduction of the window or first order finite difference.
+
+        A simple first order finite difference scheme in the spirit of this code is available in numpy.gradient.
 
         Args:
             k (int): Interpolate the data with a polynomial through the 2k+1 points x[i-k], ..., x[i], ... x[i+k]
@@ -52,47 +55,44 @@ class FiniteDifference(Derivative):
 
 class SavitzkyGolay(Derivative):
     def __init__(self, order, left, right, **kwargs):
-        """ Compute the numerical derivative by first finding the best  (least-squares) polynomial of order m < 2k
-        using the k points in the neighborhood [t-left, t+right]. The derivative is computed  from the coefficients of
-        the polynomial.
+        """ Compute the numerical derivative by first finding the best (least-squares) polynomial of order m < 2k+1
+        using the 2k+1 points in the neighborhood [t-left, t+right]. The derivative is computed  from the coefficients
+        of the polynomial. The default edge behavior is to truncate the window at the offending edge.
+
+        A simple symmetric version of the Savitzky-Galoy filter is available as scipy.signal.savgol_filter.
 
         Args:
             left: left edge of the window is t-left
             right: right edge of the window is t+right
             order:  order of polynomial (m < points in window)
+            **kwargs: Optional keyword arguments.
+
+        Keyword Args:
+            use_iwindow (bool): Whether to use an indexed window. If True, left and right act as indicies for t instead
+                of as lengths in units of t. Default False.
         """
-        # Note: Left and right have units (they do not count points)
         self.left = left
         self.right = right
+        self.use_iwindow = kwargs.get('use_iwindow', False)
         self.order = order
 
+    def _trunc_window(self, t, i):
+        ileft = np.argmin(np.abs(t - (t[i] - self.left)))
+        iright = np.argmin(np.abs(t - (t[i] + self.right)))
+        return [ileft, iright]
+
     def compute(self, t, x, i):
-        i_l = np.argmin(np.abs(t - (t[i] - self.left)))
-        i_r = np.argmin(np.abs(t - (t[i] + self.right)))
+        # Default edge behavior is to truncate the window.
+        if self.use_iwindow:
+            i_l, i_r = max(0, i - self.left), min(i + self.right, len(t) - 1)
+        else:
+            i_l, i_r = self._trunc_window(t, i)
 
-        # window too sparse. TODO: issue warning.
-        if self.order > (i_r - i_l):
-            return np.nan
+        # Construct a polynomial in t using least squares regression.
+        tfit = t[i_l:i_r]
+        xfit = x[i_l:i_r]
+        # Can raise RankWarning if order exceeds points in the window.
+        w = polyfit(tfit, xfit, self.order)
 
-        # Construct polynomial in t and do least squares regression
-        # TODO! Make this robust!
-        try:
-            polyn_t = np.array([np.power(t[i_l:i_r], n)
-                                for n in range(self.order + 1)]).T
-            w, _, _, _ = np.linalg.lstsq(polyn_t, x[i_l:i_r], rcond=None)
-        except np.linalg.LinAlgError:
-            # Failed to converge, return bad derivative
-            return np.nan
-
-        # Compute derivative from fit
-        return np.sum([j * w[j] * np.power(t[i], j - 1)
-                       for j in range(1, self.order + 1)])
-
-    def compute_for(self, t, x, indices):
-        # If the window cannot reach any points, throw an exception
-        # (likely the user forgets to rescale the window parameter)
-        if min(t[1:] - t[:-1]) > max(self.left, self.right):
-            raise ValueError("Found bad window ({}, {}) for x-axis data."
-                             .format(self.left, self.right))
-        for d in super().compute_for(t, x, indices):
-            yield d
+        # Compute the derivative from the polyfit coefficients.
+        return np.sum([j * w[j] * np.power(t[i], j - 1) for j in range(1, self.order + 1)])
