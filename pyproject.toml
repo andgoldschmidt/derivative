@@ -1,5 +1,5 @@
 [tool.poetry]
-name = "prime"
+name = "primelab"
 version = "0.1.0"
 description = "Numerical differentiation in python."
 authors = ["Andy Goldschmidt <andygold@uw.edu>"]

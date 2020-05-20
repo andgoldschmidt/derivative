@@ -24,7 +24,7 @@ Usage:
 
 .. code-block:: python
 
-    from prime import FiniteDifference
+    from primelab import FiniteDifference
     import numpy as np
 
     x = np.linspace(0,2*np.pi,100)
@@ -33,7 +33,7 @@ Usage:
     dydx = FiniteDifference(1).d(y, x)
 
 
-References:
+Project references:
 
 [1] Numerical differentiation of experimental data: local versus global methods- K. Ahnert and M. Abel  
 

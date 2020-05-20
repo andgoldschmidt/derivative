@@ -1,11 +1,11 @@
-prime
-=====
+primelab
+========
 Numerical differentiation in python
 -----------------------------------
 
 .. code-block:: python
 
-    from prime import FiniteDifference
+    from primelab import FiniteDifference
     import numpy as np
 
     x = np.linspace(0,2*np.pi,100)
