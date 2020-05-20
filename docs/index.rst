@@ -5,14 +5,26 @@ Numerical differentiation in python
 
 .. code-block:: python
 
-    from primelab import FiniteDifference
+    from primelab import dxdt
     import numpy as np
 
-    x = np.linspace(0,2*np.pi,100)
-    y = np.sin(x)
-    # Central differencing
-    dydx = FiniteDifference(1).d(y, x)
+    t = np.linspace(0,2*np.pi,50)
+    x = np.sin(x)
 
+    # Finite differences with central differencing using 3 points.
+    result1 = dxdt(x, t, kind="finite_difference", k=1)
+
+    # Savitzky-Golay using cubic polynomials to fit in a centered window of length 1
+    result2 = dxdt(x, t, kind="savitzky_golay", left=.5, right=.5, order=3)
+
+    # Spectral derivative
+    result3 = dxdt(x, t, kind="spectral")
+
+    # Spline derivative with smoothing set to 0.01
+    result4 = dxdt(x, t, kind="spline", s=1e-2)
+
+    # Total variational derivative with regularization set to 0.01
+    result5 = dxdt(x, t, kind="trend_filtered", order=1, alpha=1e-2)
 
 Numerical differentiation methods for python, including:
 
