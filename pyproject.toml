@@ -1,7 +1,10 @@
 [tool.poetry]
 name = "primelab"
-version = "0.1.0"
+version = "0.1.1"
 description = "Numerical differentiation in python."
+repository = "https://github.com/andgoldschmidt/primelab"
+documentation = "https://prime.readthedocs.io/"
+keywords = ["differentiation", "derivative", "gradient"]
 authors = ["Andy Goldschmidt <andygold@uw.edu>"]
 license = "MIT"
 readme = "README.rst"
@@ -22,6 +25,10 @@ jupyter_client = {version = "^6.1.3", optional = true}
 
 [tool.poetry.dev-dependencies]
 pytest = "^5.2"
+
+
+[tool.poetry.extras]
+docs = ["sphinx", "nbsphinx", "ipykernel", "jupyter_client"]
 
 
 [build-system]
