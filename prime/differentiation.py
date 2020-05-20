@@ -2,6 +2,47 @@ import abc
 import numpy as np
 
 
+methods = {}
+default = ["finite_difference", {"k": 1}]
+
+
+def register(name=""):
+    def inner(f):
+        n = name or f.__name__
+        methods[n] = f
+        return f
+    return inner
+
+
+def dxdt(x, t, kind=None, axis=1, **kwargs):
+    """
+    Compute the derivative of x with respect to t along axis using the numerical derivative specified by "kind".
+    This is the functional interface of the Derivative class.
+
+    Args:
+        x (:obj:`ndarray` of float): Ordered measurement values.
+        t (:obj:`ndarray` of float): Ordered measurement times.
+        kind (string): Derivative method name.
+            Built in kinds:
+            - finite_difference. required kwargs: k (window size).
+            - savitzky_golay. required kwargs: order, left, right. optional kwargs: use_iwindow.
+            - spectral. required kwargs: None. optional kwargs: filter (frequency filter function).
+            - spline. required kwargs: s (smoothing).
+            - trend_filtered. required kwargs: order, alpha (regularization).
+        axis ({0,1}). axis of x along which to differentiate. default 1.
+        **kwargs: Keyword arguments for the derivative method "kind".
+
+    Returns:
+        :obj:`ndarray` of float: Returns dx/dt along axis.
+    """
+    if kind is None:
+        method = methods.get(default[0])
+        return method(**default[1]).d(x, t)
+    else:
+        method = methods.get(kind)
+        return method(**kwargs).d(x, t, axis=axis)
+
+
 class Derivative(abc.ABC):
     """ Interface for computing numerical derivatives. """
 

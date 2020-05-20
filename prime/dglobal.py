@@ -1,4 +1,4 @@
-from .differentiation import Derivative
+from .differentiation import Derivative, register
 from .utils import deriv, integ
 
 import numpy as np
@@ -8,6 +8,7 @@ from scipy.linalg import null_space
 from sklearn.linear_model import Lasso
 
 
+@register("spectral")
 class Spectral(Derivative):
     def __init__(self, **kwargs):
         """
@@ -42,6 +43,7 @@ class Spectral(Derivative):
             yield res[i]
 
 
+@register("spline")
 class Spline(Derivative):
     def __init__(self, s, **kwargs):
         """ Compute the numerical derivative of data x using a (Cubic) spline (the Cubic spline is a natural choice as
@@ -79,6 +81,7 @@ class Spline(Derivative):
             yield interpolate.splev(self._t[i], self._spl, der=1)
 
 
+@register("trend_filtered")
 class TrendFiltered(Derivative):
     def __init__(self, order, alpha, **kwargs):
         """ Compute the numerical derivative using Total Squared Variations,

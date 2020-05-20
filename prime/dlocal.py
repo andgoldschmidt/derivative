@@ -1,8 +1,9 @@
-from .differentiation import Derivative
+from .differentiation import Derivative, register
 import numpy as np
 from numpy.polynomial.polynomial import polyfit
 
 
+@register("finite_difference")
 class FiniteDifference(Derivative):
     def __init__(self, k, **kwargs):
         """
@@ -53,6 +54,7 @@ class FiniteDifference(Derivative):
         return self._symfd(i, x, dt, self.k)
 
 
+@register("savitzky_golay")
 class SavitzkyGolay(Derivative):
     def __init__(self, order, left, right, **kwargs):
         """ Compute the numerical derivative by first finding the best (least-squares) polynomial of order m < 2k+1
