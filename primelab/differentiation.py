@@ -84,7 +84,7 @@ class Derivative(abc.ABC):
         
         Args:
             t (:obj:`ndarray` of float): Ordered measurement times.
-            X  (:obj:`ndarray` of float): Ordered measurement values.
+            X  (:obj:`ndarray` of float): Ordered measurements values. Multiple measurements allowed.
             axis ({0,1}). axis of X along which to differentiate. default 1.
 
         Returns:

@@ -24,7 +24,7 @@ Numerical differentiation in python
     result4 = dxdt(x, t, kind="spline", s=1e-2)
 
     # Total variational derivative with regularization set to 0.01
-    result5 = dxdt(x, t, kind="trend_filtered", order=1, alpha=1e-2)
+    result5 = dxdt(x, t, kind="trend_filtered", order=0, alpha=1e-2)
 
 Numerical differentiation methods for python, including:
 
