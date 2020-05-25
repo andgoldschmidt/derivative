@@ -4,7 +4,7 @@ from .utils import deriv, integ
 import numpy as np
 from numpy.linalg import inv
 from scipy import interpolate
-from scipy.linalg import null_space
+from scipy.special import legendre
 from sklearn.linear_model import Lasso
 
 
@@ -109,21 +109,17 @@ class TrendFiltered(Derivative):
 
     @staticmethod
     def _nullsp(order, diffop):
-        #  Analytic solutions to the null space are polynomials.
+        #  Analytic solutions to the null space are Legendre polynomials.
         n = diffop.shape[1]
-        if order == 1:
-            nullsp = np.ones([1, n]) / np.sqrt(n)
-        elif order == 2:
-            v1 = np.ones(n) / np.sqrt(n)
-            v2 = np.linspace(1, -1, diffop.shape[1])
-            nullsp = np.vstack([v1, v2 / np.sqrt(v2 ** 2)])
-        elif order == 3:
-            v1 = np.ones(n) / np.sqrt(n)
-            v2 = np.linspace(1, -1, diffop.shape[1])
-            v3 = -v2 ** 2 + np.sum(v2 ** 2) / n
-            nullsp = np.vstack([v1, v2 / np.sqrt(v2 ** 2), v3 / np.sqrt(v3 ** 2)])
-        else:
-            nullsp = null_space(diffop).T  # Potential bottleneck! (Requires SVDs)
+        x = np.linspace(-1,1,n)
+        dx = x[1]-x[0]
+        nullsp = []
+        for i in range(order):
+            lp = legendre(i,monic=True)(x)
+            norm = np.sqrt(2/(2*i+1)/dx)
+            lp = lp/norm
+            nullsp.append(lp)
+        nullsp = np.vstack(nullsp)
         return nullsp
 
     def _global(self, t, x):

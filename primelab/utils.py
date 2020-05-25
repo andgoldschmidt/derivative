@@ -1,4 +1,5 @@
 import numpy as np
+from scipy.special import binom
 
 
 def deriv(n, dx, order=1):
@@ -16,16 +17,10 @@ def deriv(n, dx, order=1):
         ValueError: Requires n >= 2 and order in {1,2,3}.
     """
     if n < 2:
-        raise ValueError('Bad length of {}'.format(n))
-
-    if order == 1:
-        method = [-1, 1]
-    elif order == 2:
-        method = [-1, 2, -1]
-    elif order == 3:
-        method = [-1, 3, -3, 1]
-    else:
-        raise ValueError('Order {} unimplemented.'.format(order))
+        raise ValueError('Bad size of {}'.format(n))
+    # Implement finite difference at 1st order accuracy
+    method = [(-1)**(order+i)*binom(order,i) for i in range(order+1)]
+    # Construt matrix
     M = [method + [0] * (n - len(method))]
     for row in range(n - len(method)):
         M.append([0] * (row + 1) + method + [0] * (n - len(method) - row - 1))
