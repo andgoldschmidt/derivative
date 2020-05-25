@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "primelab"
-version = "0.1.1"
+version = "0.1.2"
 description = "Numerical differentiation in python."
 repository = "https://github.com/andgoldschmidt/primelab"
 documentation = "https://prime.readthedocs.io/"
