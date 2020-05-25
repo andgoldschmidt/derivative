@@ -1,7 +1,7 @@
 primelab
 ========
-Numerical differentiation in python
------------------------------------
+Numerical differentiation of noisy time series data in python
+-------------------------------------------------------------
 
 .. code-block:: python
 
@@ -11,22 +11,22 @@ Numerical differentiation in python
     t = np.linspace(0,2*np.pi,50)
     x = np.sin(x)
 
-    # Finite differences with central differencing using 3 points.
+    # 1. Finite differences with central differencing using 3 points.
     result1 = dxdt(x, t, kind="finite_difference", k=1)
 
-    # Savitzky-Golay using cubic polynomials to fit in a centered window of length 1
+    # 2. Savitzky-Golay using cubic polynomials to fit in a centered window of length 1
     result2 = dxdt(x, t, kind="savitzky_golay", left=.5, right=.5, order=3)
 
-    # Spectral derivative
+    # 3. Spectral derivative
     result3 = dxdt(x, t, kind="spectral")
 
-    # Spline derivative with smoothing set to 0.01
+    # 4. Spline derivative with smoothing set to 0.01
     result4 = dxdt(x, t, kind="spline", s=1e-2)
 
-    # Total variational derivative with regularization set to 0.01
+    # 5. Total variational derivative with regularization set to 0.01
     result5 = dxdt(x, t, kind="trend_filtered", order=0, alpha=1e-2)
 
-Numerical differentiation methods for python, including:
+Numerical differentiation methods for noisy time series data in python includes:
 
 1. Symmetric finite difference schemes using arbitrary window size.
 
@@ -38,8 +38,9 @@ Numerical differentiation methods for python, including:
 
 5. Polynomial-trend-filtered derivatives generalizing methods like total variational derivatives.
 
-These examples are intended to survey some common differentiation methods. The goal of this package is to bind these
-common differentiation methods to an easily implemented differentiation interface to encourage user adaptation.
+The goal of this package is to provide some common numerical differentiation techniques that showcase improvements that can be made on finite differences when data is noisy. 
+
+This package binds these common differentiation methods to a single easily implemented differentiation interface to encourage user adaptation.
 
 
 References:
