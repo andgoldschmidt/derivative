@@ -1,47 +1,47 @@
-Interface (prime.differentiation.Derivative)
-============================================
+Interface (primelab.differentiation.Derivative)
+===============================================
 
-.. autoclass:: prime.differentiation.Derivative
+.. autoclass:: primelab.differentiation.Derivative
     :members:
 
 
-Local methods (prime.dlocal)
-============================
+Local methods (primelab.dlocal)
+===============================
 
-Finite differences (prime.dlocal.FiniteDifference)
---------------------------------------------------
+Finite differences (primelab.dlocal.FiniteDifference)
+-----------------------------------------------------
 
-.. autofunction:: prime.dlocal.FiniteDifference.__init__
-
-
-Savitzky-Golay (prime.dlocal.SavitzkyGolay)
--------------------------------------------
-
-.. autofunction:: prime.dlocal.SavitzkyGolay.__init__
+.. autofunction:: primelab.dlocal.FiniteDifference.__init__
 
 
-Global methods (prime.dglobal)
-==============================
+Savitzky-Golay (primelab.dlocal.SavitzkyGolay)
+----------------------------------------------
 
-Spectral (prime.dglobal.Spectral)
----------------------------------
-
-.. autofunction:: prime.dglobal.Spectral.__init__
-
-Spline (prime.dglobal.Spline)
------------------------------
-
-.. autofunction:: prime.dglobal.Spline.__init__
+.. autofunction:: primelab.dlocal.SavitzkyGolay.__init__
 
 
-Polynomial-trend-filtered (prime.dglobal.TrendFiltered)
--------------------------------------------------------
+Global methods (primelab.dglobal)
+=================================
 
-.. autofunction:: prime.dglobal.TrendFiltered.__init__
+Spectral (primelab.dglobal.Spectral)
+------------------------------------
+
+.. autofunction:: primelab.dglobal.Spectral.__init__
+
+Spline (primelab.dglobal.Spline)
+--------------------------------
+
+.. autofunction:: primelab.dglobal.Spline.__init__
 
 
-Utilities (prime.utils)
-=======================
+Polynomial-trend-filtered (primelab.dglobal.TrendFiltered)
+----------------------------------------------------------
 
-.. automodule:: prime.utils
+.. autofunction:: primelab.dglobal.TrendFiltered.__init__
+
+
+Utilities (primelab.utils)
+==========================
+
+.. automodule:: primelab.utils
     :members:
