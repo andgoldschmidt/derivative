@@ -1,7 +1,8 @@
 primelab
 ========
+
 Numerical differentiation of noisy time series data in python
--------------------------------------------------------------
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 .. code-block:: python
 
