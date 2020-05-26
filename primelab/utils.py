@@ -2,19 +2,19 @@ import numpy as np
 from scipy.special import binom
 
 
-def deriv(n, dx, order=1):
+def deriv(n, dx, order):
     """ Matrix derivative. Equi-spaced derivative via forward finite differences, mapping R^n into R^(n-order).
 
     Args:
         n (int): Number of data points
         dx (float): Width of x[k+1] - x[k]
-        order (int): Order of finite difference method to use. Default 1.
+        order (int): Order of finite difference method to use.
 
     Return:
         (:obj:`ndarray` of float): An n-by-(n-order) matrix derivative.
 
     Raises:
-        ValueError: Requires n >= 2 and order in {1,2,3}.
+        ValueError: Requires n >= 2.
     """
     if n < 2:
         raise ValueError('Bad size of {}'.format(n))

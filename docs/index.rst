@@ -4,6 +4,17 @@ primelab
 Numerical differentiation of noisy time series data in python
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+
+.. toctree::
+    :maxdepth: 1
+    :caption: Contents:
+
+    notebooks/Examples.ipynb
+    api
+    modules
+    license
+
+
 .. code-block:: python
 
     from primelab import dxdt
@@ -46,20 +57,12 @@ This package binds these common differentiation methods to a single easily imple
 
 References:
 
-[1] Numerical differentiation of experimental data: local versus global methods- K. Ahnert and M. Abel
+1. Numerical differentiation of experimental data: local versus global methods- K. Ahnert and M. Abel  
 
-[2] Numerical Differentiation of Noisy, Nonsmooth Data- Rick Chartrand
+2. Numerical Differentiation of Noisy, Nonsmooth Data- Rick Chartrand  
 
-[3] The Solution Path of the Generalized LASSO- R.J. Tibshirani and J. Taylor
+3. The Solution Path of the Generalized LASSO- R.J. Tibshirani and J. Taylor  
 
-
-.. toctree::
-    :maxdepth: 2
-    :caption: Contents:
-
-    notebooks/Examples.ipynb
-    modules
-    license
 
 
 Indices and tables

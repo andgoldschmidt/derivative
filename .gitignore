@@ -75,6 +75,9 @@ target/
 # PyCharm folder
 .idea/
 
+# OSX 
+.DS_Store
+
 # pyenv
 .python-version
 
