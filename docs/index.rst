@@ -1,9 +1,6 @@
 primelab
 ========
 
-Numerical differentiation of noisy time series data in python
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-
 
 .. toctree::
     :maxdepth: 1
@@ -14,6 +11,19 @@ Numerical differentiation of noisy time series data in python
     modules
     license
 
+
+Numerical differentiation of noisy time series data in python
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+.. figure:: images/readme_example.png
+    :width: 400
+    :align: center
+    :alt: An example of numerical differentiation of noisy time series data.
+
+    *Measurements of the signal* :math:`x(t) = -t + \sin(2 \pi t - 2)^2 + |20 t|` *taken from time -1 to 1 with additive gaussian noise (mean 0, variance 1). Finite difference methods are not sufficient for accurate derivatives, but trend-filtered differentiation can help!*
+
+
+Numerical differentiation methods for noisy time series data in python includes:
 
 .. code-block:: python
 
@@ -38,7 +48,6 @@ Numerical differentiation of noisy time series data in python
     # 5. Total variational derivative with regularization set to 0.01
     result5 = dxdt(x, t, kind="trend_filtered", order=0, alpha=1e-2)
 
-Numerical differentiation methods for noisy time series data in python includes:
 
 1. Symmetric finite difference schemes using arbitrary window size.
 
