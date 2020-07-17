@@ -16,7 +16,7 @@ Numerical differentiation of noisy time series data in python
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 .. figure:: images/readme_example.png
-    :width: 400
+    :width: 300
     :align: center
     :alt: An example of numerical differentiation of noisy time series data.
 

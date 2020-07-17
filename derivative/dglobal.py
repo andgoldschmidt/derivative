@@ -86,7 +86,7 @@ class TrendFiltered(Derivative):
     def __init__(self, order, alpha, **kwargs):
         """ Compute the numerical derivative using Total Squared Variations,
 
-            min_u (1/2)||A u - (x-x_0)||_2^2 + \alpha ||D^(order+1) u||_1
+            min_u (1/2)||A u - (x-x_0)||_2^2 + alpha ||D^(order+1) u||_1
 
         where A is the linear integral operator, and D is the linear derivative operator. The vector u finds a
         global derivative that is a piecewise function made up of polynomials of the provided order.
