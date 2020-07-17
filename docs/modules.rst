@@ -1,39 +1,39 @@
-Local methods (primelab.dlocal)
--------------------------------
-
-Finite differences (primelab.dlocal.FiniteDifference)
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-
-.. autofunction:: primelab.dlocal.FiniteDifference.__init__
-
-
-Savitzky-Golay (primelab.dlocal.SavitzkyGolay)
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-
-.. autofunction:: primelab.dlocal.SavitzkyGolay.__init__
-
-
-Global methods (primelab.dglobal)
+Local methods (derivative.dlocal)
 ---------------------------------
 
-Spectral (primelab.dglobal.Spectral)
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+Finite differences (derivative.dlocal.FiniteDifference)
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-.. autofunction:: primelab.dglobal.Spectral.__init__
-
-Spline (primelab.dglobal.Spline)
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-
-.. autofunction:: primelab.dglobal.Spline.__init__
-
-Polynomial-trend-filtered (primelab.dglobal.TrendFiltered)
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-
-.. autofunction:: primelab.dglobal.TrendFiltered.__init__
+.. autofunction:: derivative.dlocal.FiniteDifference.__init__
 
 
-Utilities (primelab.utils)
---------------------------
+Savitzky-Golay (derivative.dlocal.SavitzkyGolay)
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-.. automodule:: primelab.utils
+.. autofunction:: derivative.dlocal.SavitzkyGolay.__init__
+
+
+Global methods (derivative.dglobal)
+-----------------------------------
+
+Spectral (derivative.dglobal.Spectral)
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+.. autofunction:: derivative.dglobal.Spectral.__init__
+
+Spline (derivative.dglobal.Spline)
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+.. autofunction:: derivative.dglobal.Spline.__init__
+
+Polynomial-trend-filtered (derivative.dglobal.TrendFiltered)
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+.. autofunction:: derivative.dglobal.TrendFiltered.__init__
+
+
+Utilities (derivative.utils)
+----------------------------
+
+.. automodule:: derivative.utils
     :members:
