@@ -20,7 +20,7 @@ def deriv(n, dx, order):
         raise ValueError('Bad size of {}'.format(n))
     # Implement finite difference at 1st order accuracy
     method = [(-1)**(order+i)*binom(order,i) for i in range(order+1)]
-    # Construt matrix
+    # Construct matrix
     M = [method + [0] * (n - len(method))]
     for row in range(n - len(method)):
         M.append([0] * (row + 1) + method + [0] * (n - len(method) - row - 1))

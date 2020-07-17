@@ -17,12 +17,12 @@ sys.path.insert(0, os.path.abspath('..'))
 
 # -- Project information -----------------------------------------------------
 
-project = 'primelab'
+project = 'derivative'
 copyright = '2020, Andy Goldschmidt'
 author = 'Andy Goldschmidt'
 
 # The full version, including alpha/beta/rc tags
-release = '0.1.2'
+release = '0.2.0'
 
 
 # -- General configuration ---------------------------------------------------
