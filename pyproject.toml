@@ -5,7 +5,7 @@ description = "Numerical differentiation in python."
 repository = "https://github.com/andgoldschmidt/derivative"
 documentation = "https://derivative.readthedocs.io/"
 keywords = ["differentiation", "derivative", "gradient", "prime"]
-authors = ["Andy Goldschmidt <andygold@uw.edu>, Markus Quade <info@markusqua.de>"]
+authors = ["Andy Goldschmidt <andygold@uw.edu>", "Markus Quade <info@markusqua.de>"]
 license = "MIT"
 readme = "README.rst"
 
