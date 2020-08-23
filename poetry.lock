@@ -16,7 +16,7 @@ python-versions = "*"
 version = "0.1.0"
 
 [[package]]
-category = "dev"
+category = "main"
 description = "Atomic file writes."
 marker = "sys_platform == \"win32\""
 name = "atomicwrites"
@@ -358,7 +358,7 @@ python-versions = "*"
 version = "0.8.4"
 
 [[package]]
-category = "dev"
+category = "main"
 description = "More routines for operating on iterables, beyond itertools"
 name = "more-itertools"
 optional = false
@@ -494,7 +494,7 @@ python-versions = ">=3.5"
 version = "7.2.0"
 
 [[package]]
-category = "dev"
+category = "main"
 description = "plugin and hook calling mechanisms for python"
 name = "pluggy"
 optional = false
@@ -530,7 +530,7 @@ python-versions = "*"
 version = "0.6.0"
 
 [[package]]
-category = "dev"
+category = "main"
 description = "library with cross-python path, ini-parsing, io, code, log facilities"
 name = "py"
 optional = false
@@ -565,7 +565,7 @@ version = "0.16.0"
 six = "*"
 
 [[package]]
-category = "dev"
+category = "main"
 description = "pytest: simple powerful testing with Python"
 name = "pytest"
 optional = false
@@ -902,7 +902,7 @@ testing = ["jaraco.itertools", "func-timeout"]
 docs = ["sphinx", "nbsphinx", "ipykernel", "jupyter_client", "sphinx_rtd_theme", "matplotlib"]
 
 [metadata]
-content-hash = "b3c6d115665ac9ea2edd598d69617d0e52ae0f69b4dd7f47a0e68105574115c1"
+content-hash = "25d384dc5065f335096ed84b94d501899f358a1eda20d77347fde08f472d0593"
 python-versions = "^3.6"
 
 [metadata.files]
