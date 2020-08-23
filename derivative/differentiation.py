@@ -37,7 +37,7 @@ def dxdt(x, t, kind=None, axis=1, **kwargs):
     """
     if kind is None:
         method = methods.get(default[0])
-        return method(**default[1]).d(x, t)
+        return method(**default[1]).d(x, t, axis=axis)
     else:
         method = methods.get(kind)
         return method(**kwargs).d(x, t, axis=axis)
