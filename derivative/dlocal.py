@@ -17,7 +17,8 @@ class FiniteDifference(Derivative):
             **kwargs: Optional keyword arguments.
 
         Keyword Args:
-            periodic (bool): If True, wrap the data. If False, compute edges separately. Default False.
+            periodic (bool): If True, wrap the data. Assumes that x[-1 + 1] = x[0]. If False, compute edges separately.
+                Default False.
         """
         self.k = k
         self.periodic = kwargs.get('periodic', False)
@@ -43,7 +44,7 @@ class FiniteDifference(Derivative):
             elif i == len(x) - 1:
                 return (x[i] - x[i-1])/dt
 
-            # Check for overflow.
+            # Check for overflow and exclude.
             left = i - self.k
             right = (len(x) - 1) - (i + self.k)
             overflow = min(left, right)
