@@ -10,7 +10,7 @@ class FiniteDifference(Derivative):
         Compute the symmetric numerical derivative of equally-spaced data using the Taylor series. Derivatives at the
         boundaries are computed with the available reduction of the window or first order finite difference.
 
-        A simple first order finite difference scheme is available in numpy.gradient.
+        Finite difference schemes are also available in numpy.gradient and scipy.misc.derivative.
 
         Args:
             k (int): Interpolate the data with a polynomial through the 2k+1 points x[i-k], ..., x[i], ... x[i+k]

@@ -14,6 +14,7 @@ class Spectral(Derivative):
         """
         Compute the numerical derivative by first computing the FFT. In Fourier space, derivatives are multiplication
         by i*phase; compute the IFFT after.
+
         Args:
             **kwargs: Optional keyword arguments.
 
