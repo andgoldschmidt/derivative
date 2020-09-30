@@ -1,6 +1,24 @@
 # Run tests on utils.py methods
 from derivative.utils import deriv, integ
+import pytest
 import numpy as np
+# - test integral order negative
+
+
+def test_deriv_bad():
+    with pytest.raises(ValueError):
+        deriv(1, 1, 1)
+
+    with pytest.raises(ValueError):
+        deriv(1, 1, 2)
+
+    with pytest.raises(ValueError):
+        deriv(3, 1, 3)
+
+
+def test_integ_bad():
+    with pytest.raises(ValueError):
+        integ(0, 1)
 
 
 def test_deriv_min():

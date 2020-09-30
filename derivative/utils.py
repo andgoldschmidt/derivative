@@ -14,10 +14,11 @@ def deriv(n, dx, order):
         (:obj:`ndarray` of float): An n-by-(n-order) matrix derivative.
 
     Raises:
-        ValueError: Requires n >= 2.
+        ValueError: Requires n >= 2 and n - order >= 1.
     """
-    if n < 2:
-        raise ValueError('Bad size of {}'.format(n))
+    if n < 2 or n - order < 1:
+        raise ValueError('Bad size n={} for derivative of order {}'.format(n, order))
+
     # Implement finite difference at 1st order accuracy
     method = [(-1)**(order+i)*binom(order,i) for i in range(order+1)]
     # Construct matrix
@@ -36,6 +37,7 @@ def integ(n, dx=1):
 
     Return:
         (:obj:`ndarray` of float): An n-by-n matrix integral.
+
     Raises:
         ValueError: Requires n in positive integers.
     """

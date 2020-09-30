@@ -1,4 +1,4 @@
-# Run tests that checks basic derivative examples. Use warnings to denote failure.
+# Run tests that checks basic derivative examples. Use warnings to denote a mathematical failure.
 from derivative import dxdt, methods
 import numpy as np
 import warnings
@@ -12,7 +12,7 @@ def default_args(kind):
         # frequencies should be guaranteed to be between 0 and 50 (a filter will reduce bad outliers)
         return {'filter': np.vectorize(lambda w: 1 if abs(w) < 10 else 0)}
     elif kind == 'spline':
-        return {'s': .01}
+        return {'s': 0.1}
     elif kind == 'trend_filtered':
         return {'order': 0, 'alpha': .01, 'max_iter': 1e3}
     elif kind == 'finite_difference':

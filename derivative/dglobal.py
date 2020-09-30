@@ -54,8 +54,11 @@ class Spline(Derivative):
             s (float): Amount of smoothing
 
         Keyword Args:
-            order (int): Default is cubic spline (3).
+            order (int): Default is cubic spline (3). Supports 1 <= order <= 5.
             periodic (bool): Default False.
+
+        Raises:
+            TypeError: length of input > self.order must hold for spline interpolation.
         """
         self.smoothing = s
         self.order = kwargs.get('order', 3)
@@ -98,6 +101,10 @@ class TrendFiltered(Derivative):
             order (int): Order of the inner LASSO derivative
             alpha (float): Regularization hyper-parameter for the LASSO problem.
             **kwargs: Keyword arguments for the sklearn LASSO function.
+
+        Raises:
+            ValueError: Requires that the number of points n > order + 1 to compute the objective.
+            ConvergenceWarning: The Lasso optimization may fail to converge. Try increasing 'max_iter'.
         """
         self.dorder = order + 1
         self.alpha = alpha

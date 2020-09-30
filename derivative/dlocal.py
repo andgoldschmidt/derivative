@@ -66,9 +66,9 @@ class SavitzkyGolay(Derivative):
         A simple symmetric version of the Savitzky-Galoy filter is available as scipy.signal.savgol_filter.
 
         Args:
-            left (float): left edge of the window is t-left
-            right (float): right edge of the window is t+right
-            order (int):  order of polynomial (m < points in window)
+            left (float): Left edge of the window is t-left
+            right (float): Right edge of the window is t+right
+            order (int):  Order of polynomial. Expects 0 <= order < points in window.
             **kwargs: Optional keyword arguments.
 
         Keyword Args:
@@ -76,23 +76,25 @@ class SavitzkyGolay(Derivative):
                 of as lengths in units of t. Default False.
             periodic (bool): If True, wrap the data. Assumes that x[-1 + 1] = x[0]. If False, truncate at edges.
                 Default False.
-            T (float): If periodic is true, set T as the period of the data. Default is T = t[-1]-t[0] which is an
-                inacurate estimate.
+            period (float): If periodic is true, set this as the period of the data. Default is t[-1]-t[0], which is
+                likely an inacurate estimate.
 
+        Raises:
+            RankWarning: The fit may be poorly conditioned if order >= points in window.
         """
         self.left = left
         self.right = right
         self.order = order
         self.iwindow = kwargs.get('iwindow', False)
         self.periodic = kwargs.get('periodic', False)
-        self.T = kwargs.get('T', None)
+        self.period = kwargs.get('period', None)
 
     def _nondimensional_window(self, t, i):
         """ Create an indexed window from a dimensional window."""
         if self.periodic:
             tleft = t[i] - self.left
             tright = t[i] + self.right
-            period = self.T if self.T else t[-1] - t[0]
+            period = self.period if self.period else t[-1] - t[0]
             # Find the nearest (signed) point and add attained periods
             ileft = np.argmin((t - tleft) % period)
             ileft = ileft - len(t)*np.abs(t[ileft]-tleft)//period
@@ -119,7 +121,7 @@ class SavitzkyGolay(Derivative):
         # Index views must allow for -left to +right, inclusively.
         ii = np.arange(i_l, i_r + 1)
         # Times are not periodic and initial values must be corrected.
-        period = t[-1]-t[0] if self.T is None else self.T
+        period = t[-1]-t[0] if self.period is None else self.period
         tfit = t[ii % len(t)] + period*(ii//len(t))
         xfit = x[ii % len(t)]
         # Can raise RankWarning if order exceeds points in the window.

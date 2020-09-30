@@ -16,19 +16,24 @@ def register(name=""):
 
 def dxdt(x, t, kind=None, axis=1, **kwargs):
     """
-    Compute the derivative of x with respect to t along axis using the numerical derivative specified by "kind".
-    This is the functional interface of the Derivative class.
+    Compute the derivative of x with respect to t along axis using the numerical derivative specified by "kind". This is
+    the functional interface of the Derivative class.
+
+    This function requires that X and t have equal length along axis. An empty X results in an empty derivative. If
+    X.shape[axis] == 1, then the derivative cannot be computed in a reasonable way and X is returned.
+
+    For all other inputs, the implementation 'kind' is responsbile for determining the behavior.
 
     Args:
         x (:obj:`ndarray` of float): Ordered measurement values.
         t (:obj:`ndarray` of float): Ordered measurement times.
         kind (string): Derivative method name.
             Built in kinds:
-            - finite_difference. required kwargs: k (window size).
-            - savitzky_golay. required kwargs: order, left, right. optional kwargs: use_iwindow.
-            - spectral. required kwargs: None. optional kwargs: filter (frequency filter function).
+            - finite_difference. required kwargs: k (symmetric window size as index).
+            - savitzky_golay. required kwargs: order (of a fit polynomial), left, right (window size).
+            - spectral. required kwargs: None.
             - spline. required kwargs: s (smoothing).
-            - trend_filtered. required kwargs: order, alpha (regularization).
+            - trend_filtered. required kwargs: order (of a fit polynomial), alpha (regularization).
         axis ({0,1}). axis of x along which to differentiate. default 1.
         **kwargs: Keyword arguments for the derivative method "kind".
 
@@ -48,10 +53,17 @@ class Derivative(abc.ABC):
 
     @abc.abstractmethod
     def compute(self, t, x, i):
-        """ Compute the derivative of x with respect to t at the index i of x, (dx/dt)[i].
+        """
+        Compute the derivative of one-dimensional data x with respect to t at the index i of x, (dx/dt)[i].
 
         Computation of a derivative should fail explicitely if the implementation is unable to compute a derivative at
         the desired index. Used for global differentiation methods, for example.
+
+        This requires that x and t have equal lengths >= 2, and that the index i is a valid index.
+
+        For each implementation, any exceptions that can be raised from a valid input should either be handled or the
+        exception should be denoted in the docstring of that implementation. For example, some implementations may raise
+        an exception when x and t have length 1.
 
         Args:
             t (:obj:`ndarray` of float):  Ordered measurement times.
@@ -64,8 +76,10 @@ class Derivative(abc.ABC):
 
     def compute_for(self, t, x, indices):
         """
-        Compute derivative (dx/dt)[i] for i in indices. Overload this if
-        desiring a more efficient computation over a list of indices.
+        Compute derivative (dx/dt)[i] for i in indices. Overload this if desiring a more efficient computation over a
+        list of indices.
+
+        This function requires that x and t have equal length along axis, and that all of the indicies are valid.
 
         Args:
             t (:obj:`ndarray` of float): Ordered measurement times.
@@ -81,6 +95,9 @@ class Derivative(abc.ABC):
     def d(self, X, t, axis=1):
         """
         Compute the derivative of measurements X taken at times t.
+
+        An empty X results in an empty derivative. If X.shape[axis] == 1, then the derivative cannot be computed in a
+        reasonable way and X is returned.
         
         Args:
             t (:obj:`ndarray` of float): Ordered measurement times.
@@ -95,6 +112,9 @@ class Derivative(abc.ABC):
         """
         # Cast
         X = np.array(X)
+        if not X.size:
+            return np.array([])
+
         flat = False
         # Check shape and axis
         if len(X.shape) == 1:
@@ -113,8 +133,12 @@ class Derivative(abc.ABC):
         if X.shape[1] != len(t):
             raise ValueError("Desired X axis size does not match t size.")
 
-        # Differentiate
-        dX = np.array([list(self.compute_for(t, x, np.arange(len(t)))) for x in X])
+        # Differentiate if 2 or more points along axis
+        if X.shape[1] == 1:
+            dX = X
+        else:
+            dX = np.array([list(self.compute_for(t, x, np.arange(len(t)))) for x in X])
+
         if flat:
             return dX.flatten()
         else:
