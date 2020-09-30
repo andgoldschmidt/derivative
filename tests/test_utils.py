@@ -2,7 +2,6 @@
 from derivative.utils import deriv, integ
 import pytest
 import numpy as np
-# - test integral order negative
 
 
 def test_deriv_bad():
