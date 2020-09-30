@@ -22,20 +22,21 @@ def dxdt(x, t, kind=None, axis=1, **kwargs):
     This function requires that X and t have equal length along axis. An empty X results in an empty derivative. If
     X.shape[axis] == 1, then the derivative cannot be computed in a reasonable way and X is returned.
 
-    For all other inputs, the implementation 'kind' is responsbile for determining the behavior.
+    The implementation 'kind', an instance of the Derivative class, is responsbile for determining the behavior.
 
     Args:
         x (:obj:`ndarray` of float): Ordered measurement values.
         t (:obj:`ndarray` of float): Ordered measurement times.
-        kind (string): Derivative method name.
-            Built in kinds:
-            - finite_difference. required kwargs: k (symmetric window size as index).
-            - savitzky_golay. required kwargs: order (of a fit polynomial), left, right (window size).
-            - spectral. required kwargs: None.
-            - spline. required kwargs: s (smoothing).
-            - trend_filtered. required kwargs: order (of a fit polynomial), alpha (regularization).
-        axis ({0,1}). axis of x along which to differentiate. default 1.
+        kind (string): Derivative method name (see available kinds).
+        axis ({0,1}): Axis of x along which to differentiate. Default 1.
         **kwargs: Keyword arguments for the derivative method "kind".
+
+    Available kinds
+        - finite_difference. Required kwargs: k (symmetric window size as index).
+        - savitzky_golay. Required kwargs: order (of a fit polynomial), left, right (window size).
+        - spectral. Required kwargs: None.
+        - spline. Required kwargs: s (smoothing).
+        - trend_filtered. Required kwargs: order (of a fit polynomial), alpha (regularization).
 
     Returns:
         :obj:`ndarray` of float: Returns dx/dt along axis.
@@ -61,9 +62,8 @@ class Derivative(abc.ABC):
 
         This requires that x and t have equal lengths >= 2, and that the index i is a valid index.
 
-        For each implementation, any exceptions that can be raised from a valid input should either be handled or the
-        exception should be denoted in the docstring of that implementation. For example, some implementations may raise
-        an exception when x and t have length 1.
+        For each implementation, any exceptions raised by a valid input should either be handled or denoted in the
+        implementation docstring. For example, some implementations may raise an exception when x and t have length 2.
 
         Args:
             t (:obj:`ndarray` of float):  Ordered measurement times.

@@ -22,7 +22,8 @@ copyright = '2020, Andy Goldschmidt'
 author = 'Andy Goldschmidt'
 
 # The full version, including alpha/beta/rc tags
-release = '0.2.0'
+from derivative.__version__ import __version__
+release = __version__
 
 
 # -- General configuration ---------------------------------------------------
