@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "derivative"
-version = "0.3.0"
+version = "0.3.1"
 description = "Numerical differentiation in python."
 repository = "https://github.com/andgoldschmidt/derivative"
 documentation = "https://derivative.readthedocs.io/"
