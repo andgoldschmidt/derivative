@@ -3,7 +3,7 @@
    :alt: Documentation Status
   
 .. image:: https://img.shields.io/badge/License-MIT-blue.svg
-   :target: https://lbesson.mit-license.org/
+   :target: https://derivative.readthedocs.io/en/latest/license.html
    :alt: MIT License
  
 
