@@ -1,16 +1,24 @@
-.. image:: https://readthedocs.org/projects/derivative/badge/?version=latest
-   :target: https://derivative.readthedocs.io/en/latest/?badge=latest
-   :alt: Documentation Status
-  
-.. image:: https://img.shields.io/badge/License-MIT-blue.svg
-   :target: https://derivative.readthedocs.io/en/latest/license.html
-   :alt: MIT License
- 
+|RTD| |PyPI| |LIC|
 
 Numerical differentiation of noisy time series data in python
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+**derivative** is a Python package for differentiating noisy data. The package showcases a variety of improvements that can be made over finite differences when data is not clean.
+
+Want to see an example of how **derivative** can help? Check us out in **PySINDy** (`github.com/dynamicslab/pysindy <https://github.com/dynamicslab/pysindy/>`_), a sparse-regression framework for discovering nonlinear dynamical systems from data!
+
+This package binds common differentiation methods to a single easily implemented differentiation interface to encourage user adaptation.
 Numerical differentiation methods for noisy time series data in python includes:
+
+1. Symmetric finite difference schemes using arbitrary window size.
+
+2. Savitzky-Galoy derivatives (aka polynomial-filtered derivatives) of any polynomial order with independent left and right window parameters.
+
+3. Spectral derivatives with optional filter.
+
+4. Spline derivatives of any order.
+
+5. Polynomial-trend-filtered derivatives generalizing methods like total variational derivatives.
 
 .. code-block:: python
 
@@ -36,21 +44,6 @@ Numerical differentiation methods for noisy time series data in python includes:
     result5 = dxdt(x, t, kind="trend_filtered", order=0, alpha=1e-2)
 
 
-1. Symmetric finite difference schemes using arbitrary window size.
-
-2. Savitzky-Galoy derivatives of any polynomial order with independent left and right window parameters.
-
-3. Spectral derivatives with optional filter.
-
-4. Spline derivatives of any order.
-
-5. Polynomial-trend-filtered derivatives generalizing methods like total variational derivatives.
-
-The goal of this package is to provide some common numerical differentiation techniques that showcase improvements that can be made on finite differences when data is noisy. 
-
-This package binds these common differentiation methods to a single easily implemented differentiation interface to encourage user adaptation.
-
-
 References:
 -----------
 
@@ -59,3 +52,16 @@ References:
 [2] Numerical Differentiation of Noisy, Nonsmooth Data- Rick Chartrand
 
 [3] The Solution Path of the Generalized LASSO- R.J. Tibshirani and J. Taylor
+
+
+.. |RTD| image:: https://readthedocs.org/projects/derivative/badge/?version=latest
+   :target: https://derivative.readthedocs.io/en/latest/?badge=latest
+   :alt: Documentation Status
+  
+.. |LIC| image:: https://img.shields.io/badge/License-MIT-blue.svg
+   :target: https://derivative.readthedocs.io/en/latest/license.html
+   :alt: MIT License
+
+.. |PyPI| image:: https://badge.fury.io/py/derivative.svg
+    :target: https://pypi.org/project/derivative/0.3.1/
+
