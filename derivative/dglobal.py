@@ -47,8 +47,9 @@ class Spectral(Derivative):
 @register("spline")
 class Spline(Derivative):
     def __init__(self, s, **kwargs):
-        """ Compute the numerical derivative of data x using a (Cubic) spline (the Cubic spline is a natural choice as
-         it minimizes the curvature of the fit). Compute the derivative from the form of the known Spline polynomials.
+        """
+        Compute the numerical derivative of data x using a spline. The Cubic spline is the default choice because it
+        minimizes the curvature of the fit. Compute the derivative from the form of the fit Spline polynomials.
 
         Args:
             s (float): Amount of smoothing
@@ -95,7 +96,7 @@ class TrendFiltered(Derivative):
         where A is the linear integral operator, and D is the linear derivative operator. The vector u finds a
         global derivative that is a piecewise function made up of polynomials of the provided order.
 
-        If order=0, this is equivalent to the total-variational derivative.
+        If order=0, this is equivalent to the total-variation derivative (R. Chartrand, [2])
 
         Args:
             order (int): Order of the inner LASSO derivative

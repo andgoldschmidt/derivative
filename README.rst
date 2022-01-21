@@ -63,5 +63,5 @@ References:
    :alt: MIT License
 
 .. |PyPI| image:: https://badge.fury.io/py/derivative.svg
-    :target: https://pypi.org/project/derivative/0.3.1/
+    :target: https://pypi.org/project/derivative/
 

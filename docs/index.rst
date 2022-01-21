@@ -65,12 +65,13 @@ This package binds these common differentiation methods to a single easily imple
 
 
 References:
+===========
 
-1. Numerical differentiation of experimental data: local versus global methods- K. Ahnert and M. Abel  
+[1] Numerical differentiation of experimental data: local versus global methods- K. Ahnert and M. Abel
 
-2. Numerical Differentiation of Noisy, Nonsmooth Data- Rick Chartrand  
+[2] Numerical Differentiation of Noisy, Nonsmooth Data- Rick Chartrand
 
-3. The Solution Path of the Generalized LASSO- R.J. Tibshirani and J. Taylor  
+[3] The Solution Path of the Generalized LASSO- R.J. Tibshirani and J. Taylor
 
 
 
