@@ -224,8 +224,8 @@ class Kalman(Derivative):
         A = sparse.vstack((H, G.T @ Qinv @ G))
         b = np.vstack((x.reshape((-1,1)), np.zeros((2*n, 1))))
         sol = np.linalg.solve((A.T @ A).todense(), A.T @ b)
-        self._x_hat = H @ sol
-        self._xdot_hat = H[:, list(range(1,2*n))+ [0]] @ sol
+        self._x_hat = (H @ sol).flatten()
+        self._xdot_hat = (H[:, list(range(1,2*n))+ [0]] @ sol).flatten()
 
     def compute(self, t, x, i):
         self._global(t, x, self.alpha)
