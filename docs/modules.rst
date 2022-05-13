@@ -1,36 +1,49 @@
+.. sectnum::  
+    :suffix: .
+
+
 Local methods (derivative.dlocal)
----------------------------------
+-----------------------------------
 
-Finite differences (derivative.dlocal.FiniteDifference)
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+FiniteDifference
+^^^^^^^^^^^^^^^^
 
-.. autofunction:: derivative.dlocal.FiniteDifference.__init__
+    .. autofunction:: derivative.dlocal.FiniteDifference.__init__
 
 
-Savitzky-Golay (derivative.dlocal.SavitzkyGolay)
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+SavitzkyGolay
+^^^^^^^^^^^^^
 
 .. autofunction:: derivative.dlocal.SavitzkyGolay.__init__
 
+|
+|
 
 Global methods (derivative.dglobal)
------------------------------------
+-------------------------------------
 
-Spectral (derivative.dglobal.Spectral)
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+Spectral 
+^^^^^^^^
 
-.. autofunction:: derivative.dglobal.Spectral.__init__
+    .. autofunction:: derivative.dglobal.Spectral.__init__
 
-Spline (derivative.dglobal.Spline)
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+Spline 
+^^^^^^
 
-.. autofunction:: derivative.dglobal.Spline.__init__
+    .. autofunction:: derivative.dglobal.Spline.__init__
 
-Polynomial-trend-filtered (derivative.dglobal.TrendFiltered)
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+TrendFiltered
+^^^^^^^^^^^^^
 
-.. autofunction:: derivative.dglobal.TrendFiltered.__init__
+    .. autofunction:: derivative.dglobal.TrendFiltered.__init__
 
+Kalman
+^^^^^^
+
+    .. autofunction:: derivative.dglobal.Kalman.__init__
+
+|
+|
 
 Utilities (derivative.utils)
 ----------------------------

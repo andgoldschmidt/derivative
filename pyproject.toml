@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "derivative"
-version = "0.3.2"
+version = "0.4.1"
 description = "Numerical differentiation in python."
 repository = "https://github.com/andgoldschmidt/derivative"
 documentation = "https://derivative.readthedocs.io/"
@@ -11,7 +11,7 @@ readme = "README.rst"
 
 
 [tool.poetry.dependencies]
-python = "^3.6"
+python = "^3.7"
 numpy = "^1.18.3"
 scipy = "^1.4.1"
 sklearn = "^0.0"

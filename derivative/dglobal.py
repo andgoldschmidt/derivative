@@ -3,7 +3,8 @@ from .utils import deriv, integ
 
 import numpy as np
 from numpy.linalg import inv
-from scipy import interpolate
+from scipy import interpolate, sparse
+from scipy.sparse import linalg as splinalg
 from scipy.special import legendre
 from sklearn.linear_model import Lasso
 
@@ -91,12 +92,14 @@ class TrendFiltered(Derivative):
     def __init__(self, order, alpha, **kwargs):
         """ Compute the numerical derivative using Total Squared Variations,
 
-            min_u (1/2)||A u - (x-x_0)||_2^2 + alpha ||D^(order+1) u||_1
+        .. math ::
+
+            \\min_u \\frac{1}{2} \\|A u - (x-x_0)\\|_2^2 + \\alpha \\|D^{\\textrm{order}+1} u\\|_1
 
         where A is the linear integral operator, and D is the linear derivative operator. The vector u finds a
         global derivative that is a piecewise function made up of polynomials of the provided order.
 
-        If order=0, this is equivalent to the total-variation derivative (R. Chartrand, [2])
+        If order=0, this is equivalent to the total-variation derivative (c.f. R. Chartrand, [2]).
 
         Args:
             order (int): Order of the inner LASSO derivative
@@ -174,3 +177,63 @@ class TrendFiltered(Derivative):
         self._global(t, x)
         for i in indices:
             yield self._res[i]
+
+
+@register("kalman")
+class Kalman(Derivative):
+    def __init__(self, alpha = 1):
+        """ Fit the derivative assuming that given data are noisy measurements
+
+        The Kalman smoother is the maximum likelihood estimator (MLE) for a process whose derivative obeys a Brownian
+        motion. Equivalently, it is the MLE for a process whose measurement errors are drawn from standard normal distributions. 
+        Specifically, it minimizes the convex objective
+
+        .. math ::
+            \\min_{x, \\dot x} \\|Hx-z\\|_{R^{-1}}^2 + \\alpha \\|G(x, \\dot x)\\|_{Q^{-1}}^2
+
+        In this implementation, the we have fixed H = R :math:`\\equiv \\mathbb{1}` and let
+
+        .. math ::
+            Q \\equiv \\left[\\begin{array}{cc}\\Delta t & \\Delta t^2/2 \\\\ \\Delta t^2/2 & \\Delta t^3/3\\end{array}\\right].
+
+        Args:
+            alpha (float): Ratio of measurement error variance to assumed process variance.
+        """
+        self._t = None
+        self._x = None
+        self._xdot_hat = None
+        self._x_hat = None
+        self.alpha = alpha
+
+
+    def _global(self, t, x, alpha):
+        self._t = t
+        self._x = x
+        delta_times = t[1:]-t[:-1]
+        n = len(t)
+        Qs = [np.array([[dt, dt**2/2], [dt**2/2, dt**3/3]]) for dt in delta_times]
+        Qinv = alpha*sparse.block_diag([np.linalg.inv(Q) for Q in Qs])
+        Qinv = (Qinv + Qinv.T)/2  # force to be symmetric
+
+        G_left = sparse.block_diag([-np.array([[1, 0], [dt, 1]]) for dt in delta_times])
+        G_right = sparse.eye(2*(n-1))
+        align_cols = sparse.csc_matrix((2 * (n-1), 2))
+        G = sparse.hstack((G_left, align_cols)) + sparse.hstack((align_cols, G_right))
+
+        H = sparse.lil_matrix((n, 2*n))
+        H[:, 1::2] = sparse.eye(n)
+
+        A = sparse.vstack((H, G.T @ Qinv @ G))
+        b = np.vstack((x.reshape((-1,1)), np.zeros((2*n, 1))))
+        sol = np.linalg.solve((A.T @ A).todense(), A.T @ b)
+        self._x_hat = (H @ sol).flatten()
+        self._xdot_hat = (H[:, list(range(1,2*n))+ [0]] @ sol).flatten()
+
+    def compute(self, t, x, i):
+        self._global(t, x, self.alpha)
+        return self._xdot_hat[i]
+
+    def compute_for(self, t, x, indices):
+        self._global(t, x, self.alpha)
+        for i in indices:
+            yield self._xdot_hat[i]

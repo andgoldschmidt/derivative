@@ -19,6 +19,8 @@ def default_args(kind):
         return {'k': 1}
     elif kind == 'savitzky_golay':
         return {'left': 5, 'right': 5, 'order': 3, 'iwindow': True}
+    elif kind == 'kalman':
+        return {'alpha': .05}
     else:
         raise ValueError('Unimplemented default args for kind {}.'.format(kind))
 

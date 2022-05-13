@@ -20,7 +20,7 @@ Numerical differentiation of noisy time series data in python
     :align: center
     :alt: An example of numerical differentiation of noisy time series data.
 
-    *Measurements of the signal* :math:`x(t) = -t + \sin(2 \pi t - 2)^2 + 20 |t|` *taken from time -1 to 1 with additive gaussian noise (mean 0, variance 1). Finite difference methods are not sufficient for accurate derivatives, but trend-filtered differentiation can help!*
+    *Measurements of the signal* :math:`x(t) = -t + \sin(2 \pi t - 2)^2 + 20 |t|` *taken from time -1 to 1 with additive gaussian noise (mean 0, variance 1). Notice that not only is there noise, but at t=0 the signal is not even differentiable! This is too much to ask of finite difference methods, but trend-filtered differentiation can help.*
 
 
 Numerical differentiation methods for noisy time series data in python includes:
@@ -48,6 +48,9 @@ Numerical differentiation methods for noisy time series data in python includes:
     # 5. Total variational derivative with regularization set to 0.01
     result5 = dxdt(x, t, kind="trend_filtered", order=0, alpha=1e-2)
 
+    # 6. Kalman derivative with smoothing set to 1
+    result5 = dxdt(x, t, kind="kalman", alpha=1)
+
 
 1. Symmetric finite difference schemes using arbitrary window size.
 
@@ -58,6 +61,8 @@ Numerical differentiation methods for noisy time series data in python includes:
 4. Spline derivatives of any order.
 
 5. Polynomial-trend-filtered derivatives generalizing methods like total variational derivatives.
+
+6. Kalman derivatives find the maximum likelihood estimator for a derivative described by a Brownian motion.
 
 The goal of this package is to provide some common numerical differentiation techniques that showcase improvements that can be made on finite differences when data is noisy. 
 
@@ -72,6 +77,11 @@ References:
 [2] Numerical Differentiation of Noisy, Nonsmooth Data- Rick Chartrand
 
 [3] The Solution Path of the Generalized LASSO- R.J. Tibshirani and J. Taylor
+
+
+Contributors:
+=============
+
 
 
 

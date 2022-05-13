@@ -17,6 +17,9 @@ required parameters,
 	from derivative import dxdt
 	result = dxdt(x, t, "finite_difference", k=1)
 
+|
+|
+
 Main module (derivative.differentiation)
 ----------------------------------------
 
