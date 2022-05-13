@@ -46,11 +46,11 @@ Numerical differentiation methods for noisy time series data in python includes:
     result5 = dxdt(x, t, kind="trend_filtered", order=0, alpha=1e-2)
 
     # 6. Kalman derivative with smoothing set to 1
-    result5 = dxdt(x, t, kind="kalman", alpha=1)
+    result6 = dxdt(x, t, kind="kalman", alpha=1)
 
 
-Contributors
-------------
+Contributors:
+-------------
 Thanks to the members of the community who have contributed!
 
 +-----------------------------------------------------------------+----------------------------------------------------------------------------------+

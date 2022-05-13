@@ -49,7 +49,7 @@ Numerical differentiation methods for noisy time series data in python includes:
     result5 = dxdt(x, t, kind="trend_filtered", order=0, alpha=1e-2)
 
     # 6. Kalman derivative with smoothing set to 1
-    result5 = dxdt(x, t, kind="kalman", alpha=1)
+    result6 = dxdt(x, t, kind="kalman", alpha=1)
 
 
 1. Symmetric finite difference schemes using arbitrary window size.
@@ -77,12 +77,6 @@ References:
 [2] Numerical Differentiation of Noisy, Nonsmooth Data- Rick Chartrand
 
 [3] The Solution Path of the Generalized LASSO- R.J. Tibshirani and J. Taylor
-
-
-Contributors:
-=============
-
-
 
 
 Indices and tables
