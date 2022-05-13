@@ -5,7 +5,7 @@ Numerical differentiation of noisy time series data in python
 
 **derivative** is a Python package for differentiating noisy data. The package showcases a variety of improvements that can be made over finite differences when data is not clean.
 
-Want to see an example of how **derivative** can help? Check us out in **PySINDy** (`github.com/dynamicslab/pysindy <https://github.com/dynamicslab/pysindy/>`_), a sparse-regression framework for discovering nonlinear dynamical systems from data!
+Want to see an example of how **derivative** can help? This package is part of **PySINDy** (`github.com/dynamicslab/pysindy <https://github.com/dynamicslab/pysindy/>`_), a sparse-regression framework for discovering nonlinear dynamical systems from data.
 
 This package binds common differentiation methods to a single easily implemented differentiation interface to encourage user adaptation.
 Numerical differentiation methods for noisy time series data in python includes:
@@ -19,6 +19,8 @@ Numerical differentiation methods for noisy time series data in python includes:
 4. Spline derivatives of any order.
 
 5. Polynomial-trend-filtered derivatives generalizing methods like total variational derivatives.
+
+6. Kalman derivatives find the maximum likelihood estimator for a derivative described by a Brownian motion.
 
 .. code-block:: python
 
@@ -42,6 +44,18 @@ Numerical differentiation methods for noisy time series data in python includes:
 
     # 5. Total variational derivative with regularization set to 0.01
     result5 = dxdt(x, t, kind="trend_filtered", order=0, alpha=1e-2)
+
+    # 6. Kalman derivative with smoothing set to 1
+    result5 = dxdt(x, t, kind="kalman", alpha=1)
+
+
+Contributors
+------------
+Thanks to the members of the community who have contributed!
+
++-------------------------------------------------------+------------------------------------------------------------------------------------------------------------------------------------------------------------+
+| `Jacob Stevens-Haas <https://github.com/Jacob-Stevens-Haas>`_            | Kalman derivatives `#12 https://github.com/andgoldschmidt/derivative/pull/12`_                                                                                          |
++-------------------------------------------------------+----------------------------------------------------------------------------------
 
 
 References:

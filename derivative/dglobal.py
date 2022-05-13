@@ -92,12 +92,14 @@ class TrendFiltered(Derivative):
     def __init__(self, order, alpha, **kwargs):
         """ Compute the numerical derivative using Total Squared Variations,
 
-            min_u (1/2)||A u - (x-x_0)||_2^2 + alpha ||D^(order+1) u||_1
+        .. math ::
+
+            \\min_u \\frac{1}{2} \\|A u - (x-x_0)\\|_2^2 + \\alpha \\|D^{\\textrm{order}+1} u\\|_1
 
         where A is the linear integral operator, and D is the linear derivative operator. The vector u finds a
         global derivative that is a piecewise function made up of polynomials of the provided order.
 
-        If order=0, this is equivalent to the total-variation derivative (R. Chartrand, [2])
+        If order=0, this is equivalent to the total-variation derivative (c.f. R. Chartrand, [2]).
 
         Args:
             order (int): Order of the inner LASSO derivative
@@ -182,17 +184,17 @@ class Kalman(Derivative):
     def __init__(self, alpha = 1):
         """ Fit the derivative assuming that given data are noisy measurements
 
-        The Kalman Smoother is the maximum likelihood estimator for a coordinate whose derivative obeys Brownian
-        motion and whose measurement errors are unbiased and identical normal distributions.  It minimizes the
-        convex objective:fn_str
+        The Kalman smoother is the maximum likelihood estimator (MLE) for a process whose derivative obeys a Brownian
+        motion. Equivalently, it is the MLE for a process whose measurement errors are drawn from standard normal distributions. 
+        Specifically, it minimizes the convex objective
 
         .. math ::
-            \min_{x, \dot x} \|Hx-z\|_{R^{-1}}^2 + \alpha \|G(x, \dot x)\|_{Q^{-1}}^2
+            \\min_{x, \\dot x} \\|Hx-z\\|_{R^{-1}}^2 + \\alpha \\|G(x, \\dot x)\\|_{Q^{-1}}^2
 
-        This implementation only allows H = R = I.  Q is the matrix:
+        In this implementation, the we have fixed H = R :math:`\\equiv \\mathbb{1}` and let
 
         .. math ::
-            \left[\begin{matix}\Delta t & \Delta t^2/2\\ \Delta t^2/2 & \Delta t^3/3\end{matrix}\right]
+            Q \\equiv \\left[\\begin{array}{cc}\\Delta t & \\Delta t^2/2 \\\\ \\Delta t^2/2 & \\Delta t^3/3\\end{array}\\right].
 
         Args:
             alpha (float): Ratio of measurement error variance to assumed process variance.
