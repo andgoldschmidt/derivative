@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "derivative"
-version = "0.4.1"
+version = "0.4.2"
 description = "Numerical differentiation in python."
 repository = "https://github.com/andgoldschmidt/derivative"
 documentation = "https://derivative.readthedocs.io/"
@@ -25,14 +25,12 @@ sphinx_rtd_theme = {version = "^0.4.3", optional = true}
 matplotlib = {version = "^3.2.1", optional = true}
 pandoc = {version = "^2.2", optional = true}
 
-
-[tool.poetry.dev-dependencies]
-pytest = "^5.4.3"
-
+# dev
+pytest = {version = "^3.6.4", optional = true}
 
 [tool.poetry.extras]
 docs = ["sphinx", "nbsphinx", "ipykernel", "jupyter_client", "sphinx_rtd_theme", "matplotlib", "pandoc"]
-
+dev = ["pytest"]
 
 [build-system]
 requires = ["poetry>=0.12"]
