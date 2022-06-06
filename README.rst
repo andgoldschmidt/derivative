@@ -68,6 +68,29 @@ References:
 [3] The Solution Path of the Generalized LASSO- R.J. Tibshirani and J. Taylor
 
 
+
+Citing derivative:
+------------------
+The **derivative** package is a contribution to `PySINDy <https://github.com/dynamicslab/pysindy/>`_; this work has been published in the Journal of Open Source Software (JOSS). If you use **derivative** in your work, please cite it using the following reference:
+
+Kaptanoglu et al., (2022). PySINDy: A comprehensive Python package for robust sparse system identification. Journal of Open Source Software, 7(69), 3994, https://doi.org/10.21105/joss.03994
+
+.. code-block:: text
+
+      @article{kaptanoglu2022pysindy,
+  	doi = {10.21105/joss.03994},
+  	url = {https://doi.org/10.21105/joss.03994},
+  	year = {2022},
+  	publisher = {The Open Journal},
+  	volume = {7},
+  	number = {69},
+  	pages = {3994},
+  	author = {Alan A. Kaptanoglu and Brian M. de Silva and Urban Fasel and Kadierdan Kaheman and Andy J. Goldschmidt and Jared Callaham and Charles B. Delahunt and Zachary G. Nicolaou and Kathleen Champion and Jean-Christophe Loiseau and J. Nathan Kutz and Steven L. Brunton},
+  	title = {PySINDy: A comprehensive Python package for robust sparse system identification},
+  	journal = {Journal of Open Source Software}
+	}
+    
+
 .. |RTD| image:: https://readthedocs.org/projects/derivative/badge/?version=latest
    :target: https://derivative.readthedocs.io/en/latest/?badge=latest
    :alt: Documentation Status
