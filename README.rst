@@ -1,4 +1,4 @@
-|RTD| |PyPI| |LIC|
+|RTD| |PyPI| |Zenodo| |LIC|
 
 Numerical differentiation of noisy time series data in python
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
@@ -79,3 +79,5 @@ References:
 .. |PyPI| image:: https://badge.fury.io/py/derivative.svg
     :target: https://pypi.org/project/derivative/
 
+.. |Zenodo| image:: https://zenodo.org/badge/DOI/10.5281/zenodo.6617446.svg
+   :target: https://doi.org/10.5281/zenodo.6617446
