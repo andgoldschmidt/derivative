@@ -57,7 +57,7 @@ def integ(n, dx=1):
         raise ValueError('Bad size of {}'.format(n))
 
 
-def _memoize_arrays(maxsize=1):
+def _memoize_arrays(maxsize=128):
     """A cache wrapper for functions that accept numpy arrays.
 
     Cannot directly use any memoization from functools on these

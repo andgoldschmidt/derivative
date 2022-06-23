@@ -1,7 +1,9 @@
 # Run tests that checks basic derivative examples. Use warnings to denote a mathematical failure.
-from derivative import dxdt, methods
-import numpy as np
 import warnings
+import numpy as np
+import pytest
+from derivative import dxdt, methods
+from derivative.differentiation import _gen_method
 
 
 def default_args(kind):
@@ -131,3 +133,34 @@ def test_trig_fn():
         nexp = NumericalExperiment(lambda t1: np.sin(t1) + np.ones_like(t1) / 2, 'f(t) = sin(t)+1/2', t, m,
                                    default_args(m))
         compare(nexp, np.cos(t), 1e-2, 1e-1)
+
+
+@pytest.fixture
+def clean_gen_method_cache():
+    _gen_method.cache_clear()
+    yield
+    _gen_method.cache_clear()
+
+
+def test_gen_method_caching(clean_gen_method_cache):
+    x = np.ones(3)
+    t = np.arange(3)
+    expected = _gen_method(x, t, "finite_difference", 1, k=1)
+    result = _gen_method(x, t, "finite_difference", 1, k=1)
+    assert _gen_method.cache_info().hits == 1
+    assert _gen_method.cache_info().misses == 1
+    assert _gen_method.cache_info().currsize == 1
+    assert id(expected) == id(result)
+
+
+def test_gen_method_kwarg_caching(clean_gen_method_cache):
+    x = np.ones(3)
+    t = np.arange(3)
+    expected = _gen_method(x, t, "finite_difference", 1, k=1)
+    # different variants => cache misses
+    result = _gen_method(x, t, "finite_difference", axis=1, k=1)
+    _gen_method(x, t, kind="finite_difference", axis=1, k=1)
+    assert _gen_method.cache_info().hits == 0
+    assert _gen_method.cache_info().misses == 3
+    assert _gen_method.cache_info().currsize == 3
+    assert id(expected) != id(result)

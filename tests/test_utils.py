@@ -77,7 +77,7 @@ def test_integ_dx():
 
 def test_memoize_arrays():
     arr = np.array([1,2,3])
-    @_memoize_arrays()
+    @_memoize_arrays(maxsize=1)
     def sin(arr, addendum):
         return np.sin(arr) + addendum
     result = sin(arr, 1)

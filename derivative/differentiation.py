@@ -1,6 +1,7 @@
 import abc
 import numpy as np
 
+from .utils import _memoize_arrays
 
 methods = {}
 default = ["finite_difference", {"k": 1}]
@@ -12,6 +13,11 @@ def register(name=""):
         methods[n] = f
         return f
     return inner
+
+
+@_memoize_arrays()
+def _gen_method(x, t, kind, axis, **kwargs):
+    return methods.get(kind)(**kwargs)
 
 
 def dxdt(x, t, kind=None, axis=1, **kwargs):
@@ -42,11 +48,11 @@ def dxdt(x, t, kind=None, axis=1, **kwargs):
         :obj:`ndarray` of float: Returns dx/dt along axis.
     """
     if kind is None:
-        method = methods.get(default[0])
-        return method(**default[1]).d(x, t, axis=axis)
+        method = _gen_method(x, t, default[0], axis, **default[1])
+        return method.d(x, t, axis=axis)
     else:
-        method = methods.get(kind)
-        return method(**kwargs).d(x, t, axis=axis)
+        method = _gen_method(x, t, kind, axis, **kwargs)
+        return method.d(x, t, axis=axis)
 
 
 class Derivative(abc.ABC):
