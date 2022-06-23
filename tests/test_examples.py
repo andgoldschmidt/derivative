@@ -2,7 +2,7 @@
 import warnings
 import numpy as np
 import pytest
-from derivative import dxdt, methods
+from derivative import dxdt, smooth_x, methods
 from derivative.differentiation import _gen_method
 
 
@@ -135,6 +135,23 @@ def test_trig_fn():
         compare(nexp, np.cos(t), 1e-2, 1e-1)
 
 
+def test_smoothing_x():
+    t = np.linspace(0, 1, 100)
+    x = np.sin(t) + np.random.normal(size=t.shape)
+    method = _gen_method(x, t, kind="kalman", axis=1, alpha=1.0)
+    x_est = method.x(x, t)
+    # MSE
+    assert np.linalg.norm(x_est - np.sin(t)) ** 2 / len(t) < 1e-1
+
+
+def test_smoothing_functional():
+    t = np.linspace(0, 1, 100)
+    x = np.sin(t) + np.random.normal(size=t.shape)
+    x_est = smooth_x(x, t, kind="kalman", axis=1, alpha=1.0)
+    # MSE
+    assert np.linalg.norm(x_est - np.sin(t)) ** 2 / len(t) < 1e-1
+
+
 @pytest.fixture
 def clean_gen_method_cache():
     _gen_method.cache_clear()
@@ -164,3 +181,23 @@ def test_gen_method_kwarg_caching(clean_gen_method_cache):
     assert _gen_method.cache_info().misses == 3
     assert _gen_method.cache_info().currsize == 3
     assert id(expected) != id(result)
+
+
+@pytest.fixture
+def kalman_method():
+    x = np.ones(3)
+    t = np.arange(3)
+    method = _gen_method(x, t, "kalman", 1, alpha=1.0)
+    method._global.cache_clear()
+    yield x, t, method
+    method._global.cache_clear()
+
+
+def test_kalman_dglobal_caching(kalman_method):
+    # make sure we're not recomputing expensive _global() method
+    x, t, method = kalman_method
+    method.x(x, t)
+    method.d(x, t)
+    assert method._global.cache_info().hits == 1
+    assert method._global.cache_info().misses == 1
+    assert method._global.cache_info().currsize == 1

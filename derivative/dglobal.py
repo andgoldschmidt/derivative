@@ -1,5 +1,5 @@
 from .differentiation import Derivative, register
-from .utils import deriv, integ
+from .utils import deriv, integ, _memoize_arrays
 
 import numpy as np
 from numpy.linalg import inv
@@ -206,6 +206,7 @@ class Kalman(Derivative):
         self.alpha = alpha
 
 
+    @_memoize_arrays()
     def _global(self, t, x, alpha):
         self._t = t
         self._x = x
@@ -227,6 +228,7 @@ class Kalman(Derivative):
         b = np.vstack((x.reshape((-1,1)), np.zeros((2*n, 1))))
         sol = np.linalg.solve((A.T @ A).todense(), A.T @ b)
         self._x_hat = (H @ sol).flatten()
+        # permute columns of observation matrix to hit x_dot and miss x
         self._xdot_hat = (H[:, list(range(1,2*n))+ [0]] @ sol).flatten()
 
     def compute(self, t, x, i):
@@ -237,3 +239,18 @@ class Kalman(Derivative):
         self._global(t, x, self.alpha)
         for i in indices:
             yield self._xdot_hat[i]
+
+    def x(self, X, t, axis=1):
+        """
+        Compute the smoothed X values from measurements X taken at times t.
+
+        Args:
+            X  (:obj:`ndarray` of float): Ordered measurements values. Multiple measurements allowed.
+            t (:obj:`ndarray` of float): Ordered measurement times.
+            axis ({0,1}). axis of X along which to smooth. default 1.
+
+        Returns:
+            :obj:`ndarray` of float: Returns dX/dt along axis.
+        """
+        self._global(t, X, self.alpha)
+        return self._x_hat
