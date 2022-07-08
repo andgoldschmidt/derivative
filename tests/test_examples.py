@@ -34,14 +34,11 @@ class NumericalExperiment:
         self.kwargs = args
         self.axis = 1
 
-    def set_axis(self, axis):
-        self.axis = axis
-
     def run(self):
         return dxdt(self.fn(self.t), self.t, self.kind, self.axis, **self.kwargs)
 
 
-def compare(experiment, truth, median_tol, std_tol):
+def compare(experiment, truth, rel_tol, abs_tol, shape_only=False):
     """ Compare a numerical experiment to theoretical expectations. Issue warnings for derivative methods that fail,
     use asserts for implementation requirements.
     """
@@ -49,14 +46,15 @@ def compare(experiment, truth, median_tol, std_tol):
     message_main = "In {} dxdt applied to {}, ".format(experiment.kind, experiment.fn_str)
     message_sub = "output length of {} =/= expected length of {}.".format(len(values), len(truth))
     assert len(values) == len(truth), message_main + message_sub
-    if len(values) > 0:
+    if len(values) > 0 and not shape_only:
         residual = (values-truth)/len(values)
+        def mean_sq(x):
+            return np.sqrt(np.sum(x ** 2 / x.size))
+        assert mean_sq(residual) < max(abs_tol, mean_sq(truth) * rel_tol)
         # Median is robust to outliers
-        assert np.abs(np.median(residual)) < median_tol, (message_main +
-            "residual median {0} exceeds tolerance of {1}.".format(np.median(residual), median_tol))
+        assert np.median(np.abs(residual)) < max(abs_tol, np.median(np.abs(truth)) * rel_tol)
         # But make sure outliers are also looked at
-        assert np.std(residual) < std_tol, (message_main +
-            "residual standard deviation {0} exceeds tolerance of {1}.".format(np.std(residual), std_tol))
+        assert np.linalg.norm(residual, ord=np.inf) < max(abs_tol, np.linalg.norm(truth, ord=np.inf) * rel_tol)
 
 
 # Check that numbers are returned
