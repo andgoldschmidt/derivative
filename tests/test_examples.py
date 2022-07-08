@@ -1,7 +1,7 @@
 # Run tests that checks basic derivative examples. Use warnings to denote a mathematical failure.
 from derivative import dxdt, methods
+import pytest
 import numpy as np
-import warnings
 
 
 def default_args(kind):
@@ -34,14 +34,11 @@ class NumericalExperiment:
         self.kwargs = args
         self.axis = 1
 
-    def set_axis(self, axis):
-        self.axis = axis
-
     def run(self):
         return dxdt(self.fn(self.t), self.t, self.kind, self.axis, **self.kwargs)
 
 
-def compare(experiment, truth, median_tol, std_tol):
+def compare(experiment, truth, rel_tol, abs_tol, shape_only=False):
     """ Compare a numerical experiment to theoretical expectations. Issue warnings for derivative methods that fail,
     use asserts for implementation requirements.
     """
@@ -49,85 +46,65 @@ def compare(experiment, truth, median_tol, std_tol):
     message_main = "In {} dxdt applied to {}, ".format(experiment.kind, experiment.fn_str)
     message_sub = "output length of {} =/= expected length of {}.".format(len(values), len(truth))
     assert len(values) == len(truth), message_main + message_sub
-    if len(values) > 0:
+    if len(values) > 0 and not shape_only:
         residual = (values-truth)/len(values)
+        def mean_sq(x):
+            return np.sqrt(np.sum(x ** 2 / x.size))
+        assert mean_sq(residual) < max(abs_tol, mean_sq(truth) * rel_tol)
         # Median is robust to outliers
-        if np.abs(np.median(residual)) > median_tol:
-            message_sub = "residual median {0} exceeds tolerance of {1}.".format(np.median(residual), median_tol)
-            warnings.warn(message_main + message_sub, UserWarning)
+        assert np.median(np.abs(residual)) < max(abs_tol, np.median(np.abs(truth)) * rel_tol)
         # But make sure outliers are also looked at
-        if np.abs(np.std(residual)) > std_tol:
-            message_sub = "residual standard deviation {0} exceeds tolerance of {1}.".format(np.std(residual), std_tol)
-            warnings.warn(message_main + message_sub)
+        assert np.linalg.norm(residual, ord=np.inf) < max(abs_tol, np.linalg.norm(truth, ord=np.inf) * rel_tol)
 
 
 # Check that numbers are returned
 # ===============================
-def test_notnan():
+@pytest.mark.parametrize("m", methods)
+def test_notnan(m):
     t = np.linspace(0, 1, 100)
-    for m in methods:
-        nexp = NumericalExperiment(lambda t1: np.random.randn(*t1.shape), 'f(t) = t', t, m, default_args(m))
-        values = nexp.run()
-        message = "In {} dxdt applied to {}, np.nan returned instead of float.".format(nexp.kind, nexp.fn_str)
-        assert not np.any(np.isnan(values)), message
+    nexp = NumericalExperiment(lambda t1: np.random.randn(*t1.shape), 'f(t) = t', t, m, default_args(m))
+    values = nexp.run()
+    message = "In {} dxdt applied to {}, np.nan returned instead of float.".format(nexp.kind, nexp.fn_str)
+    assert not np.any(np.isnan(values)), message
 
 
 # Test some basic functions
 # =========================
-def test_constant_fn1():
-    t = np.linspace(0, 1, 100)
-    for m in methods:
-        if m == 'trend_filtered':
-            # Add noise to avoid all zeros non-convergence warning for sklearn lasso
-            nexp = NumericalExperiment(lambda t1: np.ones_like(t1) + np.random.randn(*t1.shape) * 1e-9, 'f(t) = 1', t,
-                                       m, default_args(m))
-        else:
-            nexp = NumericalExperiment(lambda t: np.ones_like(t), 'f(t) = 1', t, m, default_args(m))
-        compare(nexp, np.zeros_like(t), 1e-2, 1e-1)
+funcs_and_derivs = (
+        (lambda t: np.ones_like(t), "f(t) = 1", lambda t: np.zeros_like(t), "const1"),
+        (lambda t: np.zeros_like(t), "f(t) = 0", lambda t: np.zeros_like(t), "const0"),
+        (lambda t: t, "f(t) = t", lambda t: np.ones_like(t), "lin-identity"),
+        (lambda t: 2 * t + 1, "f(t) = 2t+1", lambda t: 2 * np.ones_like(t), "lin-affine"),
+        (lambda t: -t, "f(t) = -t", lambda t: -np.ones_like(t), "lin-neg"),
+        (lambda t: t ** 2 - t + np.ones_like(t), "f(t) = t^2-t+1", lambda t: 2 * t -np.ones_like(t), "polynomial"),
+        (lambda t: np.sin(t) + np.ones_like(t) / 2, "f(t) = sin(t)+1/2", lambda t: np.cos(t), "trig"),
+        (
+            lambda t: np.array([2 * t, - t]),
+            "f(t) = [2t, -t]",
+            lambda t: np.vstack((2 * np.ones_like(t), -np.ones_like(t))),
+            "2D linear",
+        ),
+        (
+            lambda t: np.array([np.sin(t), np.cos(t)]),
+            "f(t) = [sin(t), cos(t)]",
+            lambda t: np.vstack((np.cos(t), -np.sin(t))),
+            "2D trig",
+        ),
+    )
 
-
-def test_constant_fn2():
-    t = np.linspace(-1, 0, 100)
-    for m in methods:
-        if m == 'trend_filtered':
-            # Add noise to avoid all zeros non-convergence warning for sklearn lasso
-            nexp = NumericalExperiment(lambda t1: np.random.randn(*t1.shape) * 1e-9, 'f(t) = 1', t, m, default_args(m))
-        else:
-            nexp = NumericalExperiment(lambda t: np.zeros_like(t), 'f(t) = 1', t, m, default_args(m))
-        compare(nexp, np.zeros_like(t), 1e-2, 1e-1)
-
-
-def test_linear_fn1():
-    t = np.linspace(0, 1, 100)
-    for m in methods:
-        nexp = NumericalExperiment(lambda t1: t1, 'f(t) = t', t, m, default_args(m))
-        compare(nexp, np.ones_like(t), 1e-2, 1e-1)
-
-
-def test_linear_fn2():
-    t = np.linspace(-1, 0, 100)
-    for m in methods:
-        nexp = NumericalExperiment(lambda t1: 2 * t1 + 1, 'f(t) = 2t+1', t, m, default_args(m))
-        compare(nexp, 2*np.ones_like(t), 1e-2, 1e-1)
-
-
-def test_linear_fn3():
-    t = np.linspace(-0.5, 0.5, 100)
-    for m in methods:
-        nexp = NumericalExperiment(lambda t1: -1 * t1, 'f(t) = t', t, m, default_args(m))
-        compare(nexp, -1*np.ones_like(t), 1e-2, 1e-1)
-
-
-def test_polyn_fn():
-    t = np.linspace(0, 1, 100)
-    for m in methods:
-        nexp = NumericalExperiment(lambda t1: t1 ** 2 - t1 + np.ones_like(t1), 'f(t) = t^2-t+1', t, m, default_args(m))
-        compare(nexp, 2*t - np.ones_like(t), 1e-2, 1e-1)
-
-
-def test_trig_fn():
-    t = np.linspace(0, 1, 100)
-    for m in methods:
-        nexp = NumericalExperiment(lambda t1: np.sin(t1) + np.ones_like(t1) / 2, 'f(t) = sin(t)+1/2', t, m,
-                                   default_args(m))
-        compare(nexp, np.cos(t), 1e-2, 1e-1)
+@pytest.mark.parametrize("m", methods)
+@pytest.mark.parametrize("func_spec", funcs_and_derivs, ids=(tup[-1] for tup in funcs_and_derivs))
+def test_fn(m, func_spec):
+    func, fname, deriv, f_id = func_spec
+    t = np.linspace(0, 2*np.pi, 100)
+    if m == 'trend_filtered':
+        # Add noise to avoid all zeros non-convergence warning for sklearn lasso
+        f_mod = lambda t: func(t) + 1e-9 * np.random.randn(*t.shape) # rename to avoid infinite loop
+    else:
+        f_mod = func
+    nexp = NumericalExperiment(f_mod, fname, t, m, default_args(m))
+    bad_combo=False
+    # spectral is only accurate for periodic data.  Ideally fixed in decorators
+    if ("lin" in f_id or "poly" in f_id) and m == "spectral":
+        bad_combo=True
+    compare(nexp, deriv(t), 1e-1, 1e-1, bad_combo)
