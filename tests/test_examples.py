@@ -175,3 +175,11 @@ def test_kalman_dglobal_caching(kalman_method):
     assert method._global.cache_info().hits == 1
     assert method._global.cache_info().misses == 1
     assert method._global.cache_info().currsize == 1
+
+
+def test_cached_kalman_global_order(kalman_method):
+    x, t, method = kalman_method
+    x = np.vstack((x, -x))
+    first_result = method.x(x, t)
+    second_result = method.x(x, t)
+    np.testing.assert_equal(first_result, second_result)
