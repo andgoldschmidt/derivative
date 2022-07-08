@@ -134,6 +134,45 @@ class Derivative(abc.ABC):
         for i in indices:
             yield self.compute(t, x, i)
 
+    def compute_x(self, t, x, i):
+        """
+        Compute smoothed values of one-dimensional data x at the index i of x.
+        Overload this if subclass actually smooths values.
+
+        This requires that x and t have equal lengths >= 2, and that the index i is a valid index.
+
+        For each implementation, any exceptions raised by a valid input should either be handled or denoted in the
+        implementation docstring. For example, some implementations may raise an exception when x and t have length 2.
+
+        Args:
+            t (:obj:`ndarray` of float):  Ordered measurement times.
+            x (:obj:`ndarray` of float):  Ordered measurement values.
+            i (int): Index i at which to returned smoothed values
+
+        Returns:
+            float
+        """
+        return x[i]
+
+    def compute_x_for(self, t, x, indices):
+        """
+        Compute smoothed values of x at each i in indices. Overload
+        this if desiring a more efficient computation over a list of
+        indices.
+
+        This function requires that x and t have equal length along axis, and that all of the indicies are valid.
+
+        Args:
+            t (:obj:`ndarray` of float): Ordered measurement times.
+            x (:obj:`ndarray` of float): Ordered measurement values.
+            indices (:obj:`ndarray` of int): Indices i at which to compute (dx/dt)[i]
+
+        Returns:
+            Generator[float]: yields (dx/dt)[i] for i in indices
+        """
+        for i in indices:
+            yield self.compute_x(t, x, i)
+
     def d(self, X, t, axis=1):
         """
         Compute the derivative of measurements X taken at times t.
@@ -182,7 +221,18 @@ class Derivative(abc.ABC):
         Returns:
             :obj:`ndarray` of float: Returns dX/dt along axis.
         """
-        return X
+        X = np.array(X)
+        if not X.size:
+            return np.array([])
+        X, flat = _align_axes(X, t, axis)
+
+        # Differentiate if 2 or more points along axis
+        if X.shape[1] == 1:
+            dX = X
+        else:
+            dX = np.array([list(self.compute_x_for(t, x, np.arange(len(t)))) for x in X])
+
+        return _restore_axes(dX, axis, flat)
 
 
 def _align_axes(X, t, axis):
