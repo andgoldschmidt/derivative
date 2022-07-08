@@ -240,17 +240,11 @@ class Kalman(Derivative):
         for i in indices:
             yield self._xdot_hat[i]
 
-    def x(self, X, t, axis=1):
-        """
-        Compute the smoothed X values from measurements X taken at times t.
+    def compute_x(self, t, x, i):
+        self._global(t, x, self.alpha)
+        return self._x_hat[i]
 
-        Args:
-            X  (:obj:`ndarray` of float): Ordered measurements values. Multiple measurements allowed.
-            t (:obj:`ndarray` of float): Ordered measurement times.
-            axis ({0,1}). axis of X along which to smooth. default 1.
-
-        Returns:
-            :obj:`ndarray` of float: Returns dX/dt along axis.
-        """
-        self._global(t, X, self.alpha)
-        return self._x_hat
+    def compute_x_for(self, t, x, indices):
+        self._global(t, x, self.alpha)
+        for i in indices:
+            yield self._x_hat[i]
