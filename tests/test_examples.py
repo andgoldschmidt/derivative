@@ -2,7 +2,6 @@
 from derivative import dxdt, methods
 import pytest
 import numpy as np
-import warnings
 
 
 def default_args(kind):
@@ -53,13 +52,11 @@ def compare(experiment, truth, median_tol, std_tol):
     if len(values) > 0:
         residual = (values-truth)/len(values)
         # Median is robust to outliers
-        if np.abs(np.median(residual)) > median_tol:
-            message_sub = "residual median {0} exceeds tolerance of {1}.".format(np.median(residual), median_tol)
-            warnings.warn(message_main + message_sub, UserWarning)
+        assert np.abs(np.median(residual)) < median_tol, (message_main +
+            "residual median {0} exceeds tolerance of {1}.".format(np.median(residual), median_tol))
         # But make sure outliers are also looked at
-        if np.abs(np.std(residual)) > std_tol:
-            message_sub = "residual standard deviation {0} exceeds tolerance of {1}.".format(np.std(residual), std_tol)
-            warnings.warn(message_main + message_sub)
+        assert np.std(residual) < std_tol, (message_main +
+            "residual standard deviation {0} exceeds tolerance of {1}.".format(np.std(residual), std_tol))
 
 
 # Check that numbers are returned
