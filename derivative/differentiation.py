@@ -191,13 +191,8 @@ class Derivative(abc.ABC):
         Raises:
             ValueError: Requires that X.shape[axis] equals len(t). If X is flat, requires that len(X) equals len(t).
         """
-        # Cast
-        X = np.array(X)
-        if not X.size:
-            return np.array([])
         X, flat = _align_axes(X, t, axis)
 
-        # Differentiate if 2 or more points along axis
         if X.shape[1] == 1:
             dX = X
         else:
@@ -221,12 +216,8 @@ class Derivative(abc.ABC):
         Returns:
             :obj:`ndarray` of float: Returns dX/dt along axis.
         """
-        X = np.array(X)
-        if not X.size:
-            return np.array([])
         X, flat = _align_axes(X, t, axis)
 
-        # Differentiate if 2 or more points along axis
         if X.shape[1] == 1:
             dX = X
         else:
@@ -236,6 +227,8 @@ class Derivative(abc.ABC):
 
 
 def _align_axes(X, t, axis):
+    # Cast
+    X = np.array(X)
     flat = False
     # Check shape and axis
     if len(X.shape) == 1:

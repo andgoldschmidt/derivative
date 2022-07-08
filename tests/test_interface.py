@@ -38,12 +38,6 @@ def test_axis():
 
 def test_empty():
     empty = np.array([])
-    # spectral
-    assert 0 == dxdt(empty, empty, kind='spectral').size
-    # spline
-    assert 0 == dxdt(empty, empty, kind='spline', order=1, s=.01).size
-    # trend_filtered
-    assert 0 == dxdt(empty, empty, kind='trend_filtered', order=1, alpha=.01, max_iter=1e3).size
     # finite_difference
     assert 0 == dxdt(empty, empty, kind='finite_difference', k=1).size
     # savitzky_golay
