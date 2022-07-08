@@ -75,60 +75,26 @@ def test_notnan(m):
 
 # Test some basic functions
 # =========================
+simple_funcs_and_derivs = (
+        (lambda t: np.ones_like(t), "f(t) = 1", lambda t: np.zeros_like(t)),
+        (lambda t: np.zeros_like(t), "f(t) = 0", lambda t: np.zeros_like(t)),
+        (lambda t: t, "f(t) = t", lambda t: np.ones_like(t)),
+        (lambda t: 2 * t + 1, "f(t) = 2t+1", lambda t: 2 * np.ones_like(t)),
+        (lambda t: -t, "f(t) = -t", lambda t: -np.ones_like(t)),
+        (lambda t1: t1 ** 2 - t1 + np.ones_like(t1), "f(t) = t^2-t+1", lambda t: 2 * t -np.ones_like(t)),
+        (lambda t1: np.sin(t1) + np.ones_like(t1) / 2, "f(t) = sin(t)+1/2", lambda t: np.cos(t)),
+    )
+f_and_d_ids = ("const1", "const0", "identity", "affine", "neg id", "polynomial", "trig")
+
 @pytest.mark.parametrize("m", methods)
-def test_constant_fn1(m):
+@pytest.mark.parametrize("func_spec", simple_funcs_and_derivs, ids=f_and_d_ids)
+def test_fn(m, func_spec):
+    func, fname, deriv = func_spec
     t = np.linspace(0, 1, 100)
     if m == 'trend_filtered':
         # Add noise to avoid all zeros non-convergence warning for sklearn lasso
-        nexp = NumericalExperiment(lambda t1: np.ones_like(t1) + np.random.randn(*t1.shape) * 1e-9, 'f(t) = 1', t,
-                                    m, default_args(m))
+        f_mod = lambda t: func(t) + 1e-9 * np.random.randn(*t.shape) # rename to avoid infinite loop
     else:
-        nexp = NumericalExperiment(lambda t: np.ones_like(t), 'f(t) = 1', t, m, default_args(m))
-    compare(nexp, np.zeros_like(t), 1e-2, 1e-1)
-
-
-@pytest.mark.parametrize("m", methods)
-def test_constant_fn2(m):
-    t = np.linspace(-1, 0, 100)
-    if m == 'trend_filtered':
-        # Add noise to avoid all zeros non-convergence warning for sklearn lasso
-        nexp = NumericalExperiment(lambda t1: np.random.randn(*t1.shape) * 1e-9, 'f(t) = 1', t, m, default_args(m))
-    else:
-        nexp = NumericalExperiment(lambda t: np.zeros_like(t), 'f(t) = 1', t, m, default_args(m))
-    compare(nexp, np.zeros_like(t), 1e-2, 1e-1)
-
-
-@pytest.mark.parametrize("m", methods)
-def test_linear_fn1(m):
-    t = np.linspace(0, 1, 100)
-    nexp = NumericalExperiment(lambda t1: t1, 'f(t) = t', t, m, default_args(m))
-    compare(nexp, np.ones_like(t), 1e-2, 1e-1)
-
-
-@pytest.mark.parametrize("m", methods)
-def test_linear_fn2(m):
-    t = np.linspace(-1, 0, 100)
-    nexp = NumericalExperiment(lambda t1: 2 * t1 + 1, 'f(t) = 2t+1', t, m, default_args(m))
-    compare(nexp, 2*np.ones_like(t), 1e-2, 1e-1)
-
-
-@pytest.mark.parametrize("m", methods)
-def test_linear_fn3(m):
-    t = np.linspace(-0.5, 0.5, 100)
-    nexp = NumericalExperiment(lambda t1: -1 * t1, 'f(t) = t', t, m, default_args(m))
-    compare(nexp, -1*np.ones_like(t), 1e-2, 1e-1)
-
-
-@pytest.mark.parametrize("m", methods)
-def test_polyn_fn(m):
-    t = np.linspace(0, 1, 100)
-    nexp = NumericalExperiment(lambda t1: t1 ** 2 - t1 + np.ones_like(t1), 'f(t) = t^2-t+1', t, m, default_args(m))
-    compare(nexp, 2*t - np.ones_like(t), 1e-2, 1e-1)
-
-
-@pytest.mark.parametrize("m", methods)
-def test_trig_fn(m):
-    t = np.linspace(0, 1, 100)
-    nexp = NumericalExperiment(lambda t1: np.sin(t1) + np.ones_like(t1) / 2, 'f(t) = sin(t)+1/2', t, m,
-                                default_args(m))
-    compare(nexp, np.cos(t), 1e-2, 1e-1)
+        f_mod = func
+    nexp = NumericalExperiment(f_mod, fname, t, m, default_args(m))
+    compare(nexp, deriv(t), 1e-2, 1e-1)
