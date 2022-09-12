@@ -1,5 +1,5 @@
 from .differentiation import Derivative, register
-from .utils import deriv, integ
+from .utils import deriv, integ, _memoize_arrays
 
 import numpy as np
 from numpy.linalg import inv
@@ -199,16 +199,11 @@ class Kalman(Derivative):
         Args:
             alpha (float): Ratio of measurement error variance to assumed process variance.
         """
-        self._t = None
-        self._x = None
-        self._xdot_hat = None
-        self._x_hat = None
         self.alpha = alpha
 
 
+    @_memoize_arrays(1)
     def _global(self, t, x, alpha):
-        self._t = t
-        self._x = x
         delta_times = t[1:]-t[:-1]
         n = len(t)
         Qs = [np.array([[dt, dt**2/2], [dt**2/2, dt**3/3]]) for dt in delta_times]
@@ -226,14 +221,24 @@ class Kalman(Derivative):
         A = sparse.vstack((H, G.T @ Qinv @ G))
         b = np.vstack((x.reshape((-1,1)), np.zeros((2*n, 1))))
         sol = np.linalg.solve((A.T @ A).todense(), A.T @ b)
-        self._x_hat = (H @ sol).flatten()
-        self._xdot_hat = (H[:, list(range(1,2*n))+ [0]] @ sol).flatten()
+        x_hat = (H @ sol).flatten()
+        x_dot_hat = (H[:, list(range(1,2*n))+ [0]] @ sol).flatten()
+        return x_hat, x_dot_hat
 
     def compute(self, t, x, i):
-        self._global(t, x, self.alpha)
-        return self._xdot_hat[i]
+        x_dot_hat = self._global(t, x, self.alpha)[1]
+        return x_dot_hat[i]
 
     def compute_for(self, t, x, indices):
-        self._global(t, x, self.alpha)
+        x_dot_hat = self._global(t, x, self.alpha)[1]
         for i in indices:
-            yield self._xdot_hat[i]
+            yield x_dot_hat[i]
+
+    def compute_x(self, t, x, i):
+        x_hat = self._global(t, x, self.alpha)[0]
+        return x_hat[i]
+
+    def compute_x_for(self, t, x, indices):
+        x_hat = self._global(t, x, self.alpha)[0]
+        for i in indices:
+            yield x_hat[i]
