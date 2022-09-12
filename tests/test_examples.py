@@ -1,7 +1,8 @@
 # Run tests that checks basic derivative examples. Use warnings to denote a mathematical failure.
-from derivative import dxdt, methods
-import pytest
 import numpy as np
+import pytest
+from derivative import dxdt, smooth_x, methods
+from derivative.differentiation import _gen_method
 
 
 def default_args(kind):
@@ -71,27 +72,26 @@ def test_notnan(m):
 # Test some basic functions
 # =========================
 funcs_and_derivs = (
-        (lambda t: np.ones_like(t), "f(t) = 1", lambda t: np.zeros_like(t), "const1"),
-        (lambda t: np.zeros_like(t), "f(t) = 0", lambda t: np.zeros_like(t), "const0"),
-        (lambda t: t, "f(t) = t", lambda t: np.ones_like(t), "lin-identity"),
-        (lambda t: 2 * t + 1, "f(t) = 2t+1", lambda t: 2 * np.ones_like(t), "lin-affine"),
-        (lambda t: -t, "f(t) = -t", lambda t: -np.ones_like(t), "lin-neg"),
-        (lambda t: t ** 2 - t + np.ones_like(t), "f(t) = t^2-t+1", lambda t: 2 * t -np.ones_like(t), "polynomial"),
-        (lambda t: np.sin(t) + np.ones_like(t) / 2, "f(t) = sin(t)+1/2", lambda t: np.cos(t), "trig"),
-        (
-            lambda t: np.array([2 * t, - t]),
-            "f(t) = [2t, -t]",
-            lambda t: np.vstack((2 * np.ones_like(t), -np.ones_like(t))),
-            "2D linear",
-        ),
-        (
-            lambda t: np.array([np.sin(t), np.cos(t)]),
-            "f(t) = [sin(t), cos(t)]",
-            lambda t: np.vstack((np.cos(t), -np.sin(t))),
-            "2D trig",
-        ),
-    )
-
+    (lambda t: np.ones_like(t), "f(t) = 1", lambda t: np.zeros_like(t), "const1"),
+    (lambda t: np.zeros_like(t), "f(t) = 0", lambda t: np.zeros_like(t), "const0"),
+    (lambda t: t, "f(t) = t", lambda t: np.ones_like(t), "lin-identity"),
+    (lambda t: 2 * t + 1, "f(t) = 2t+1", lambda t: 2 * np.ones_like(t), "lin-affine"),
+    (lambda t: -t, "f(t) = -t", lambda t: -np.ones_like(t), "lin-neg"),
+    (lambda t: t ** 2 - t + np.ones_like(t), "f(t) = t^2-t+1", lambda t: 2 * t -np.ones_like(t), "polynomial"),
+    (lambda t: np.sin(t) + np.ones_like(t) / 2, "f(t) = sin(t)+1/2", lambda t: np.cos(t), "trig"),
+    (
+        lambda t: np.array([2 * t, - t]),
+        "f(t) = [2t, -t]",
+        lambda t: np.vstack((2 * np.ones_like(t), -np.ones_like(t))),
+        "2D linear",
+    ),
+    (
+        lambda t: np.array([np.sin(t), np.cos(t)]),
+        "f(t) = [sin(t), cos(t)]",
+        lambda t: np.vstack((np.cos(t), -np.sin(t))),
+        "2D trig",
+    ),
+)
 @pytest.mark.parametrize("m", methods)
 @pytest.mark.parametrize("func_spec", funcs_and_derivs, ids=(tup[-1] for tup in funcs_and_derivs))
 def test_fn(m, func_spec):
@@ -108,3 +108,78 @@ def test_fn(m, func_spec):
     if ("lin" in f_id or "poly" in f_id) and m == "spectral":
         bad_combo=True
     compare(nexp, deriv(t), 1e-1, 1e-1, bad_combo)
+
+def test_smoothing_x():
+    t = np.linspace(0, 1, 100)
+    x = np.sin(t) + np.random.normal(size=t.shape)
+    method = _gen_method(x, t, kind="kalman", axis=1, alpha=1.0)
+    x_est = method.x(x, t)
+    # MSE
+    assert np.linalg.norm(x_est - np.sin(t)) ** 2 / len(t) < 1e-1
+
+
+def test_smoothing_functional():
+    t = np.linspace(0, 1, 100)
+    x = np.sin(t) + np.random.normal(size=t.shape)
+    x_est = smooth_x(x, t, kind="kalman", axis=1, alpha=1.0)
+    # MSE
+    assert np.linalg.norm(x_est - np.sin(t)) ** 2 / len(t) < 1e-1
+
+
+@pytest.fixture
+def clean_gen_method_cache():
+    _gen_method.cache_clear()
+    yield
+    _gen_method.cache_clear()
+
+
+def test_gen_method_caching(clean_gen_method_cache):
+    x = np.ones(3)
+    t = np.arange(3)
+    expected = _gen_method(x, t, "finite_difference", 1, k=1)
+    result = _gen_method(x, t, "finite_difference", 1, k=1)
+    assert _gen_method.cache_info().hits == 1
+    assert _gen_method.cache_info().misses == 1
+    assert _gen_method.cache_info().currsize == 1
+    assert id(expected) == id(result)
+
+
+def test_gen_method_kwarg_caching(clean_gen_method_cache):
+    x = np.ones(3)
+    t = np.arange(3)
+    expected = _gen_method(x, t, "finite_difference", 1, k=1)
+    # different variants => cache misses
+    result = _gen_method(x, t, "finite_difference", axis=1, k=1)
+    _gen_method(x, t, kind="finite_difference", axis=1, k=1)
+    assert _gen_method.cache_info().hits == 0
+    assert _gen_method.cache_info().misses == 3
+    assert _gen_method.cache_info().currsize == 3
+    assert id(expected) != id(result)
+
+
+@pytest.fixture
+def kalman_method():
+    x = np.ones(3)
+    t = np.arange(3)
+    method = _gen_method(x, t, "kalman", 1, alpha=1.0)
+    method._global.cache_clear()
+    yield x, t, method
+    method._global.cache_clear()
+
+
+def test_kalman_dglobal_caching(kalman_method):
+    # make sure we're not recomputing expensive _global() method
+    x, t, method = kalman_method
+    method.x(x, t)
+    method.d(x, t)
+    assert method._global.cache_info().hits == 1
+    assert method._global.cache_info().misses == 1
+    assert method._global.cache_info().currsize == 1
+
+
+def test_cached_kalman_global_order(kalman_method):
+    x, t, method = kalman_method
+    x = np.vstack((x, -x))
+    first_result = method.x(x, t)
+    second_result = method.x(x, t)
+    np.testing.assert_equal(first_result, second_result)
