@@ -4,7 +4,6 @@ from .utils import deriv, integ, _memoize_arrays
 import numpy as np
 from numpy.linalg import inv
 from scipy import interpolate, sparse
-from scipy.sparse import linalg as splinalg
 from scipy.special import legendre
 from sklearn.linear_model import Lasso
 
@@ -203,7 +202,7 @@ class Kalman(Derivative):
 
 
     @_memoize_arrays(1)
-    def _global(self, t, x, alpha):
+    def _global(self, t, z, alpha):
         delta_times = t[1:]-t[:-1]
         n = len(t)
         Qs = [np.array([[dt, dt**2/2], [dt**2/2, dt**3/3]]) for dt in delta_times]
@@ -218,9 +217,9 @@ class Kalman(Derivative):
         H = sparse.lil_matrix((n, 2*n))
         H[:, 1::2] = sparse.eye(n)
 
-        A = sparse.vstack((H, G.T @ Qinv @ G))
-        b = np.vstack((x.reshape((-1,1)), np.zeros((2*n, 1))))
-        sol = np.linalg.solve((A.T @ A).todense(), A.T @ b)
+        rhs = H.T @ z.reshape((-1,1))
+        lhs = H.T @ H + G.T @ Qinv @ G
+        sol = np.linalg.solve(lhs.toarray(), rhs)
         x_hat = (H @ sol).flatten()
         x_dot_hat = (H[:, list(range(1,2*n))+ [0]] @ sol).flatten()
         return x_hat, x_dot_hat
