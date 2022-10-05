@@ -75,7 +75,7 @@ def test_small():
     assert three.shape == dxdt(three, three, kind='spline', **kwargs).shape
 
     # trend_filtered - ValueError: Requires that the number of points n > order + 1 to compute the objective
-    kwargs = {'order': 1, 'alpha': .01, 'max_iter': 1e3}
+    kwargs = {'order': 1, 'alpha': .01, 'max_iter': int(1e3)}
     with pytest.raises(ValueError):
         dxdt(two, two, kind='trend_filtered', **kwargs)
     assert three.shape == dxdt(three, three, kind='trend_filtered', **kwargs).shape

@@ -15,7 +15,7 @@ def default_args(kind):
     elif kind == 'spline':
         return {'s': 0.1}
     elif kind == 'trend_filtered':
-        return {'order': 0, 'alpha': .01, 'max_iter': 1e3}
+        return {'order': 0, 'alpha': .01, 'max_iter': int(1e3)}
     elif kind == 'finite_difference':
         return {'k': 1}
     elif kind == 'savitzky_golay':
