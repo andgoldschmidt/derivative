@@ -111,8 +111,9 @@ def test_fn(m, func_spec):
 
 def test_smoothing_x():
     t = np.linspace(0, 1, 100)
-    x = np.sin(t) + np.random.normal(size=t.shape)
-    method = _gen_method(x, t, kind="kalman", axis=1, alpha=1.0)
+    rng = np.random.default_rng(10)
+    x = np.sin(t) + rng.normal(size=t.shape)
+    method = _gen_method(x, t, kind="kalman", axis=1, alpha=135)
     x_est = method.x(x, t)
     # MSE
     assert np.linalg.norm(x_est - np.sin(t)) ** 2 / len(t) < 1e-1
@@ -120,8 +121,9 @@ def test_smoothing_x():
 
 def test_smoothing_functional():
     t = np.linspace(0, 1, 100)
-    x = np.sin(t) + np.random.normal(size=t.shape)
-    x_est = smooth_x(x, t, kind="kalman", axis=1, alpha=1.0)
+    rng = np.random.default_rng(10)
+    x = np.sin(t) + rng.normal(size=t.shape)
+    x_est = smooth_x(x, t, kind="kalman", axis=1, alpha=135)
     # MSE
     assert np.linalg.norm(x_est - np.sin(t)) ** 2 / len(t) < 1e-1
 
