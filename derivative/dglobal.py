@@ -116,7 +116,6 @@ class TrendFiltered(Derivative):
         self._t = None
         self._x = None
         self._model = None
-        self._res = None
 
     @staticmethod
     def _nullsp(order, diffop):
@@ -133,6 +132,7 @@ class TrendFiltered(Derivative):
         nullsp = np.vstack(nullsp)
         return nullsp
 
+    @_memoize_arrays(1)
     def _global(self, t, x):
         self._t = t
         self._x = x
@@ -152,7 +152,7 @@ class TrendFiltered(Derivative):
         XDtilde = arrI.dot(invDtilde)
         X1, X2 = XDtilde[:, :-1], XDtilde[:, -1:]
 
-        # IV: Compute projectors
+        # IV: Compute projectors for range and nullspace of X2
         # Note: regarding inv, X2.T@X2 is always small
         X2_proj = inv(X2.T.dot(X2)).dot(X2.T)
         proj = np.identity(n) - X2.dot(X2_proj)
@@ -166,16 +166,27 @@ class TrendFiltered(Derivative):
         # VI: Restore desired variables
         theta1_hat = self._model.coef_
         theta2_hat = X2_proj.dot(self._x - self._x[0] - X1.dot(theta1_hat))
-        self._res = invDtilde.dot(np.hstack([theta1_hat, theta2_hat]))
+        x_dot_hat = invDtilde.dot(np.hstack([theta1_hat, theta2_hat]))
+        x_hat = arrI @ x_dot_hat + x[0]
+        return x_hat, x_dot_hat
 
     def compute(self, t, x, i):
-        self._global(t, x)
-        return self._res[i]
+        x_dot_hat = self._global(t, x)[1]
+        return x_dot_hat[i]
 
     def compute_for(self, t, x, indices):
-        self._global(t, x)
+        x_dot_hat = self._global(t, x)[1]
         for i in indices:
-            yield self._res[i]
+            yield x_dot_hat[i]
+
+    def compute_x(self, t, x, i):
+        x_hat = self._global(t, x)[0]
+        return x_hat[i]
+
+    def compute_x_for(self, t, x, indices):
+        x_hat = self._global(t, x)[0]
+        for i in indices:
+            yield x_hat[i]
 
 
 @register("kalman")
