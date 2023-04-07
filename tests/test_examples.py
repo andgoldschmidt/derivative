@@ -109,21 +109,24 @@ def test_fn(m, func_spec):
         bad_combo=True
     compare(nexp, deriv(t), 1e-1, 1e-1, bad_combo)
 
-def test_smoothing_x():
+
+@pytest.mark.parametrize("kind", ("kalman", "trend_filtered"))
+def test_smoothing_x(kind):
     t = np.linspace(0, 1, 100)
     rng = np.random.default_rng(10)
-    x = np.sin(t) + rng.normal(size=t.shape)
-    method = _gen_method(x, t, kind="kalman", axis=1, alpha=135)
+    x = np.sin(t) + rng.normal(scale=1e-1, size=t.shape)
+    method = _gen_method(x, t, kind=kind, axis=1, **default_args(kind))
     x_est = method.x(x, t)
     # MSE
     assert np.linalg.norm(x_est - np.sin(t)) ** 2 / len(t) < 1e-1
 
 
-def test_smoothing_functional():
+@pytest.mark.parametrize("kind", ("kalman", "trend_filtered"))
+def test_smoothing_functional(kind):
     t = np.linspace(0, 1, 100)
     rng = np.random.default_rng(10)
-    x = np.sin(t) + rng.normal(size=t.shape)
-    x_est = smooth_x(x, t, kind="kalman", axis=1, alpha=135)
+    x = np.sin(t) + rng.normal(scale=1e-1, size=t.shape)
+    x_est = smooth_x(x, t, kind=kind, axis=1, **default_args(kind))
     # MSE
     assert np.linalg.norm(x_est - np.sin(t)) ** 2 / len(t) < 1e-1
 
@@ -160,18 +163,19 @@ def test_gen_method_kwarg_caching(clean_gen_method_cache):
 
 
 @pytest.fixture
-def kalman_method():
+def method_inst(request):
     x = np.ones(3)
     t = np.arange(3)
-    method = _gen_method(x, t, "kalman", 1, alpha=1.0)
+    method = _gen_method(x, t, request.param, 1, **default_args(request.param))
     method._global.cache_clear()
     yield x, t, method
     method._global.cache_clear()
 
 
-def test_kalman_dglobal_caching(kalman_method):
+@pytest.mark.parametrize("method_inst", ["kalman", "trend_filtered"], indirect=True)
+def test_dglobal_caching(method_inst):
     # make sure we're not recomputing expensive _global() method
-    x, t, method = kalman_method
+    x, t, method = method_inst
     method.x(x, t)
     method.d(x, t)
     assert method._global.cache_info().hits == 1
@@ -179,8 +183,9 @@ def test_kalman_dglobal_caching(kalman_method):
     assert method._global.cache_info().currsize == 1
 
 
-def test_cached_kalman_global_order(kalman_method):
-    x, t, method = kalman_method
+@pytest.mark.parametrize("method_inst", ["kalman", "trend_filtered"], indirect=True)
+def test_cached_global_order(method_inst):
+    x, t, method = method_inst
     x = np.vstack((x, -x))
     first_result = method.x(x, t)
     second_result = method.x(x, t)
