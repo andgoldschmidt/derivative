@@ -14,7 +14,7 @@ readme = "README.rst"
 python = "^3.7"
 numpy = "^1.18.3"
 scipy = "^1.4.1"
-scikit-learn = "~1.0.0"
+scikit-learn = "^1"
 
 # docs
 sphinx = {version = "^4.0.2", optional = true}
@@ -26,7 +26,7 @@ matplotlib = {version = "^3.2.1", optional = true}
 pandoc = {version = "^2.2", optional = true}
 
 # dev
-pytest = {version = "^3.6.4", optional = true}
+pytest = {version = "^7", optional = true}
 
 [tool.poetry.extras]
 docs = ["sphinx", "nbsphinx", "ipykernel", "jupyter_client", "sphinx_rtd_theme", "matplotlib", "pandoc"]
