@@ -75,6 +75,9 @@ target/
 # PyCharm folder
 .idea/
 
+# Poetry lock
+poetry.lock
+
 # OSX 
 .DS_Store
 
