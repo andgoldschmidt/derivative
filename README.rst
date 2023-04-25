@@ -1,4 +1,4 @@
-|RTD| |PyPI| |Zenodo| |LIC|
+|RTD| |PyPI| |Zenodo| |GithubCI| |LIC|
 
 Numerical differentiation of noisy time series data in python
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^

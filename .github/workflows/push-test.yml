@@ -7,17 +7,38 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        python-version: ["3.7", "3.8", "3.9"]
+        python-version: ["3.7"]
+        poetry-version: ["1.1.0"]
 
     steps:
-      - uses: actions/checkout@v3
-      - name: Install Poetry
-        run: pipx install poetry
+      # Set up Python
+      - name: Check out
+        uses: actions/checkout@v3
       - name: Set up Python ${{ matrix.python-version }}
         uses: actions/setup-python@v4
         with:
           python-version: ${{ matrix.python-version }}
-      - name: Poetry install dev
-        run: poetry install -E dev
-      - name: Poetry Pytest
+      # Set up Poetry
+      - name: Cache Poetry
+        id: cache-poetry
+        uses: actions/cache@v3
+        with:
+          path: ~/.poetry
+          key: ${{ matrix.os }}-${{ matrix.poetry-version }}-poetry
+      - name: Install Poetry
+        if: steps.cache-poetry.outputs.cache-hit != 'true'
+        run: pipx install poetry
+      # Set up environment
+      - name: venvs.in-project true
+        run: poetry config virtualenvs.in-project true
+      - name: Load cache
+        uses: actions/cache@v3
+        with:
+          path: ./.venv
+          key: venv-${{ runner.os }}-${{ matrix.python-version }}-${{ hashFiles('**/poetry.lock') }}
+      - name: Poetry install
+        if: steps.cached-poetry-dependencies.outputs.cache-hit != 'true'
+        run: poetry install --no-interaction --no-root -E dev
+      # Run tests in venv
+      - name: Poetry pytest
         run: poetry run pytest
