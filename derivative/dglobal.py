@@ -1,3 +1,4 @@
+from functools import partialmethod
 from .differentiation import Derivative, register
 from .utils import deriv, integ, _memoize_arrays
 
@@ -250,5 +251,81 @@ class Kalman(Derivative):
 
     def compute_x_for(self, t, x, indices):
         x_hat = self._global(t, x, self.alpha)[0]
+        for i in indices:
+            yield x_hat[i]
+
+
+@register("kernel")
+class Kernel(Derivative):
+    def __init__(self, sigma: float=1, lmbd: float=0, kernel: str="gaussian"):
+        """ Fit the derivative assuming a gaussian process specified by kernels
+
+        .. math ::
+            T = [t_1, \\dots, t_n]
+            K(T, T) = \\left[\\begin{matrix}
+                k(t_1,t_1) & \dots & k(t_1, t_n)\\\\
+                \vdots & \\ddots & \\vdots
+                k(t_n,t_1) & \dots & k(t_n, t_n)\\\\
+            \\end{matrix}\\right]
+            x(t) = K(t, T)(K(T, T) + \\sigma I)^{-1}z
+            \\dot x(t) = K_t(t, T)(K(T, T) + \\sigma I)^{-1}z
+
+        Where z are measurements.
+
+        Args:
+            sigma: parameter of kernel function
+            lmbd: noise variance
+            kernel: name of kernel function
+        """
+        self.sigma = sigma
+        self.lmbd = lmbd
+        self.kernel = kernel
+
+    @staticmethod
+    def _gauss_kernel(t1, t2, sigma):
+        r2 = (t2-t1)
+        return np.exp(-r2 ** 2 / (2 * sigma ** 2))
+
+    @staticmethod
+    def _gauss_kernel_dt(t1, t2, sigma):
+        r2 = (t2-t1)
+        return - (r2 / sigma **2) * np.exp(-r2 ** 2 / (2 * sigma ** 2))
+
+    @staticmethod
+    def _create_gram(kernel_func, t):
+        v_kernel_func = np.vectorize(kernel_func)
+        rows, cols = np.meshgrid(t,t)
+        return v_kernel_func(rows, cols)
+
+    @_memoize_arrays(1)
+    def _global(self, t, z, sigma, lmbd, kernel):
+        if kernel in ("gaussian", "rbf"):
+            k_fun = lambda t1, t2: self._gauss_kernel(t1, t2, sigma=sigma)
+            k_fun_dt = lambda t1, t2: self._gauss_kernel_dt(t1, t2, sigma=sigma)
+        else:
+            raise ValueError("Must choose either gaussian or rbf kernel")
+        kernel = self._create_gram(k_fun, t)
+        kernel_dt = self._create_gram(k_fun_dt, t)
+        noisy_kernel = kernel + lmbd * np.eye(len(t))
+        alpha = np.linalg.solve(noisy_kernel, z)
+        x_hat = kernel @ alpha
+        x_dot_hat = kernel_dt @ alpha
+        return x_hat, x_dot_hat
+
+    def compute(self, t, x, i):
+        x_dot_hat = self._global(t, x, self.sigma, self.lmbd, self.kernel)[1]
+        return x_dot_hat[i]
+
+    def compute_for(self, t, x, indices):
+        x_dot_hat = self._global(t, x, self.sigma, self.lmbd, self.kernel)[1]
+        for i in indices:
+            yield x_dot_hat[i]
+
+    def compute_x(self, t, x, i):
+        x_hat = self._global(t, x, self.sigma, self.lmbd, self.kernel)[0]
+        return x_hat[i]
+
+    def compute_x_for(self, t, x, indices):
+        x_hat = self._global(t, x, self.sigma, self.lmbd, self.kernel)[0]
         for i in indices:
             yield x_hat[i]
