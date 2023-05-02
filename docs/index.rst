@@ -51,6 +51,9 @@ Numerical differentiation methods for noisy time series data in python includes:
     # 6. Kalman derivative with smoothing set to 1
     result6 = dxdt(x, t, kind="kalman", alpha=1)
 
+    # 7. Kernel derivative with smoothing set to 1
+    result7 = dxdt(x, t, kind="kernel", sigma=1, lmbd=.1, kernel="rbf")
+
 
 1. Symmetric finite difference schemes using arbitrary window size.
 
@@ -63,6 +66,8 @@ Numerical differentiation methods for noisy time series data in python includes:
 5. Polynomial-trend-filtered derivatives generalizing methods like total variational derivatives.
 
 6. Kalman derivatives find the maximum likelihood estimator for a derivative described by a Brownian motion.
+
+7. Kernel derivatives smooth a random process defined by its kernel (covariance).
 
 The goal of this package is to provide some common numerical differentiation techniques that showcase improvements that can be made on finite differences when data is noisy. 
 

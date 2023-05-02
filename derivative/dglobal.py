@@ -260,18 +260,6 @@ class Kernel(Derivative):
     def __init__(self, sigma: float=1, lmbd: float=0, kernel: str="gaussian"):
         """ Fit the derivative assuming a gaussian process specified by kernels
 
-        .. math ::
-            T = [t_1, \\dots, t_n]
-            K(T, T) = \\left[\\begin{matrix}
-                k(t_1,t_1) & \dots & k(t_1, t_n)\\\\
-                \vdots & \\ddots & \\vdots
-                k(t_n,t_1) & \dots & k(t_n, t_n)\\\\
-            \\end{matrix}\\right]
-            x(t) = K(t, T)(K(T, T) + \\sigma I)^{-1}z
-            \\dot x(t) = K_t(t, T)(K(T, T) + \\sigma I)^{-1}z
-
-        Where z are measurements.
-
         Args:
             sigma: parameter of kernel function
             lmbd: noise variance
