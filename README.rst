@@ -22,6 +22,8 @@ Numerical differentiation methods for noisy time series data in python includes:
 
 6. Kalman derivatives find the maximum likelihood estimator for a derivative described by a Brownian motion.
 
+7. Kernel derivatives smooth a random process defined by its kernel (covariance).
+
 .. code-block:: python
 
     from derivative import dxdt
@@ -47,14 +49,17 @@ Numerical differentiation methods for noisy time series data in python includes:
 
     # 6. Kalman derivative with smoothing set to 1
     result6 = dxdt(x, t, kind="kalman", alpha=1)
-
+    
+    # 7. Kernel derivative with smoothing set to 1
+    result7 = dxdt(x, t, kind="kernel", sigma=1, lmbd=.1, kernel="rbf")
 
 Contributors:
 -------------
 Thanks to the members of the community who have contributed!
 
 +-----------------------------------------------------------------+----------------------------------------------------------------------------------+
-|  `Jacob Stevens-Haas <https://github.com/Jacob-Stevens-Haas>`_  | Kalman derivatives `#12 <https://github.com/andgoldschmidt/derivative/pull/12>`_ |  
+|  `Jacob Stevens-Haas <https://github.com/Jacob-Stevens-Haas>`_  | Kalman derivatives `#12 <https://github.com/andgoldschmidt/derivative/pull/12>`_,|
+|								  | Kernel derivatives `#30 <https://github.com/andgoldschmidt/derivative/pull/30>`_ |  
 +-----------------------------------------------------------------+----------------------------------------------------------------------------------+
 
 
@@ -67,6 +72,7 @@ References:
 
 [3] The Solution Path of the Generalized LASSO- R.J. Tibshirani and J. Taylor
 
+[4] A Kernel Approach for PDE Discovery and Operator Learning - D. Long et al.
 
 
 Citing derivative:
@@ -105,6 +111,6 @@ Kaptanoglu et al., (2022). PySINDy: A comprehensive Python package for robust sp
 .. |Zenodo| image:: https://zenodo.org/badge/DOI/10.5281/zenodo.6617446.svg
    :target: https://doi.org/10.5281/zenodo.6617446
 
-.. |GithubCI| image:: https://github.com/andgoldschmidt/derivative/actions/workflows/pull-test.yml/badge.svg
-    :target: https://github.com/andgoldschmidt/derivative/actions
+.. |GithubCI| image:: https://github.com/andgoldschmidt/derivative/actions/workflows/push-test.yml/badge.svg
+    :target: https://github.com/andgoldschmidt/derivative/actions/workflows/push-test.yml
 
