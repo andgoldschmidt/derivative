@@ -42,6 +42,11 @@ Kalman
 
     .. autofunction:: derivative.dglobal.Kalman.__init__
 
+Kernel
+^^^^^^
+
+    .. autofunction:: derivative.dglobal.Kernel.__init__
+
 |
 |
 
