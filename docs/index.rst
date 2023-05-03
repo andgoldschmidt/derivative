@@ -83,6 +83,7 @@ References:
 
 [3] The Solution Path of the Generalized LASSO- R.J. Tibshirani and J. Taylor
 
+[4] A Kernel Approach for PDE Discovery and Operator Learning - D. Long et al.
 
 Indices and tables
 ==================
