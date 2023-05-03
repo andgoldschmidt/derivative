@@ -1,3 +1,6 @@
+todo
+commit-msg
+
 # Byte-compiled / optimized / DLL files
 __pycache__/
 *.py[cod]
@@ -74,6 +77,9 @@ target/
 
 # PyCharm folder
 .idea/
+
+# VSCode folder
+.vscode/
 
 # OSX 
 .DS_Store
