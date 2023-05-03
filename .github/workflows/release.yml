@@ -1,0 +1,50 @@
+name: Release
+
+on:
+  release:
+    types:
+      - published
+
+jobs:
+  release:
+    name: Deploy release to Test-PyPI
+    runs-on: ubuntu-latest
+    environment:
+      name: testpypi
+    strategy:
+      matrix:
+        python-version: ["3.7"]
+        poetry-version: ["1.2.1"]
+    steps:
+      # ======
+      # Checkout, set up python
+      # ======
+      - name: Checkout source
+        uses: actions/checkout@v3
+      - name: Set up Python ${{ matrix.python-version }}
+        uses: actions/setup-python@v4
+        with:
+          python-version: ${{ matrix.python-version }}
+      # ======
+      # Install poetry
+      # ======
+      - name: Install Poetry
+        uses: snok/install-poetry@v1
+        with:
+          version: ${{ matrix.poetry-version }}
+          virtualenvs-create: true
+          virtualenvs-in-project: true
+      # ======
+      # Install dependencies
+      # ======
+      - name: Install dependencies
+        run: poetry install --no-interaction --no-root
+      # ======
+      # Build and upload package to Test-PyPI
+      # Null API token? "There is no pypi-token.testpypi setting."
+      # =====
+      - name: Upload package
+        run: |
+          poetry config repositories.testpypi https://test.pypi.org/legacy/
+          poetry config pypi-token.testpypi ${{ secrets.TEST_PYPI_TOKEN }}
+          poetry publish --no-interaction --build -r testpypi
