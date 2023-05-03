@@ -1,4 +1,4 @@
-|RTD| |PyPI| |Zenodo| |LIC|
+|RTD| |PyPI| |Zenodo| |GithubCI| |LIC|
 
 Numerical differentiation of noisy time series data in python
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
@@ -104,3 +104,7 @@ Kaptanoglu et al., (2022). PySINDy: A comprehensive Python package for robust sp
 
 .. |Zenodo| image:: https://zenodo.org/badge/DOI/10.5281/zenodo.6617446.svg
    :target: https://doi.org/10.5281/zenodo.6617446
+
+.. |GithubCI| image:: https://github.com/andgoldschmidt/derivative/actions/workflows/pull-test.yml/badge.svg
+    :target: https://github.com/andgoldschmidt/derivative/actions
+

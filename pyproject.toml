@@ -1,11 +1,15 @@
 [tool.poetry]
 name = "derivative"
-version = "0.5.3"
+version = "0.5.5"
 description = "Numerical differentiation in python."
 repository = "https://github.com/andgoldschmidt/derivative"
 documentation = "https://derivative.readthedocs.io/"
 keywords = ["differentiation", "derivative", "gradient", "prime"]
-authors = ["Andy Goldschmidt <andygold@uw.edu>", "Markus Quade <info@markusqua.de>"]
+authors = [
+    "Andy Goldschmidt <andygold@uchicago.edu>",
+    "Markus Quade <info@markusqua.de>",
+    "Jacob Stevens-Haas <jmsh@uw.edu>"
+]
 license = "MIT"
 readme = "README.rst"
 
@@ -33,5 +37,5 @@ docs = ["sphinx", "nbsphinx", "ipykernel", "jupyter_client", "sphinx_rtd_theme",
 dev = ["pytest"]
 
 [build-system]
-requires = ["poetry-core>=1.0.0"]
+requires = ["poetry-core>=1.1.0"]
 build-backend = "poetry.core.masonry.api"
