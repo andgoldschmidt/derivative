@@ -10,7 +10,8 @@ jobs:
     name: Deploy release to Test-PyPI
     runs-on: ubuntu-latest
     environment:
-      name: testpypi
+#      name: testpypi
+      name: release
     strategy:
       matrix:
         python-version: ["3.7"]
@@ -42,9 +43,12 @@ jobs:
       # ======
       # Build and upload package to Test-PyPI
       # Null API token? "There is no pypi-token.testpypi setting."
+      # Test?
+      #  poetry config repositories.testpypi https://test.pypi.org/legacy/
+      #  poetry config pypi-token.testpypi ${{ secrets.TEST_PYPI_TOKEN }}
+      #  poetry publish --no-interaction --build -r testpypi
       # =====
       - name: Upload package
         run: |
-          poetry config repositories.testpypi https://test.pypi.org/legacy/
-          poetry config pypi-token.testpypi ${{ secrets.TEST_PYPI_TOKEN }}
-          poetry publish --no-interaction --build -r testpypi
+          poetry config pypi-token.pypi ${{ secrets.PYPI_TOKEN }}
+          poetry publish --no-interaction --build
