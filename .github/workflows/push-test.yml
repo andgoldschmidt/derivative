@@ -1,5 +1,7 @@
 name: Test
 
+# Push/pull overlap if PR is from the same repo,
+#  but pull_request is nec. for forks, etc.
 on: [push, pull_request]
 
 jobs:
@@ -38,18 +40,16 @@ jobs:
           virtualenvs-in-project: true
       # ======
       # Load cached venv if cache exists
+      # Install dependencies if cache does not exist
       # ======
       - name: Load cached venv
-        id: cached-poetry-dependencies
+        id: cached-poetry-dependencies-dev
         uses: actions/cache@v3
         with:
           path: .venv
-          key: venv-${{ matrix.python-version }}-${{ matrix.poetry-version }}-${{ hashFiles('**/poetry.lock') }}
-      # ======
-      # Install dependencies if cache does not exist
-      # ======
+          key: dev-${{ matrix.python-version }}-${{ matrix.poetry-version }}-${{ hashFiles('**/poetry.lock') }}
       - name: Install dependencies
-        if: steps.cached-poetry-dependencies.outputs.cache-hit != 'true'
+        if: steps.cached-poetry-dependencies-dev.outputs.cache-hit != 'true'
         run: poetry install --no-interaction --no-root -E dev
       # ======
       # Run test suite

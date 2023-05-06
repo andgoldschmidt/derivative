@@ -1,0 +1,55 @@
+name: Docs
+
+on: [pull_request]
+
+jobs:
+  docs:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        python-version: [ "3.7" ]
+        poetry-version: [ "1.2.1" ]
+    steps:
+      # ======
+      # Checkout, set up python
+      # ======
+      - name: Check out
+        uses: actions/checkout@v3
+      - name: Set up Python ${{ matrix.python-version }}
+        uses: actions/setup-python@v4
+        with:
+          python-version: ${{ matrix.python-version }}
+      # ======
+      # Install and configure poetry from cache
+      # ======
+      - name: Load cached Poetry installation
+        id: cached-poetry
+        uses: actions/cache@v3
+        with:
+          path: ~/.local  # the path depends on the OS
+          key: poetry-${{ matrix.poetry-version }}
+      # ======
+      # Load cached venv if cache exists
+      # Install dependencies if cache does not exist
+      # ======
+      - name: Load cached venv
+        id: cached-poetry-dependencies-docs
+        uses: actions/cache@v3
+        with:
+          path: .venv
+          key: docs-${{ matrix.python-version }}-${{ matrix.poetry-version }}-${{ hashFiles('**/poetry.lock') }}
+      - name: Install dependencies
+        if: steps.cached-poetry-dependencies.outputs.cache-hit != 'true'
+        run: poetry install --no-interaction --no-root -E docs
+      # ======
+      # Install Pandoc
+      # ======
+      - name: Use pandoc (external to Poetry)
+        uses: nikeee/setup-pandoc@v1
+#        uses: docker://pandoc/latex:2.9
+      - run: pip install pandoc
+      # ======
+      # Run test suite
+      # ======
+      - name: Make docs
+        run: poetry run sphinx-build docs docs/_build
