@@ -74,6 +74,23 @@ The goal of this package is to provide some common numerical differentiation tec
 This package binds these common differentiation methods to a single easily implemented differentiation interface to encourage user adaptation.
 
 
+Plugins:
+========
+Certain differentiation methods allow plugins to identify hyperparameters.  This
+can be useful in testing out new methods while still using the interface of
+``derivative``.  Plugins must be registered to the ``derivative.hyperparam_opt``
+group.  The entry point must be::
+
+    Callable[
+        [t: np.ndarray, x: np.ndarray],
+        *args, float | Sequence[float] | dict[str, float]
+    ]
+
+entry popint names must also be prepended with the method's registered name and a dot,
+e.g.::
+
+    "kalman.fancy_hyperparam_opt" = ...
+
 References:
 ===========
 

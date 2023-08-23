@@ -1,6 +1,6 @@
 from functools import partialmethod
 from .differentiation import Derivative, register
-from .utils import deriv, integ, _memoize_arrays
+from .utils import deriv, integ, _memoize_arrays, _load_hyperparam_func
 
 import numpy as np
 from numpy.linalg import inv
@@ -192,7 +192,7 @@ class TrendFiltered(Derivative):
 
 @register("kalman")
 class Kalman(Derivative):
-    def __init__(self, alpha = 1):
+    def __init__(self, alpha=None):
         """ Fit the derivative assuming that given data are noisy measurements
 
         The Kalman smoother is the maximum likelihood estimator (MLE) for a process whose derivative obeys a Brownian
@@ -215,6 +215,10 @@ class Kalman(Derivative):
 
     @_memoize_arrays(1)
     def _global(self, t, z, alpha):
+        if alpha is None:
+            alpha = 1
+        if isinstance(alpha, str):
+            alpha = _load_hyperparam_func(f"kalman.{alpha}")(t, z)
         delta_times = t[1:]-t[:-1]
         n = len(t)
         Qs = [np.array([[dt, dt**2/2], [dt**2/2, dt**3/3]]) for dt in delta_times]
