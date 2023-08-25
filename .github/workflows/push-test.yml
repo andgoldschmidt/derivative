@@ -50,7 +50,7 @@ jobs:
           key: dev-${{ matrix.python-version }}-${{ matrix.poetry-version }}-${{ hashFiles('**/poetry.lock') }}
       - name: Install dependencies
         if: steps.cached-poetry-dependencies-dev.outputs.cache-hit != 'true'
-        run: poetry install --no-interaction --no-root -E dev
+        run: poetry install --no-interaction -E dev
       # ======
       # Run test suite
       # TODO: output code coverage, --cov=<project-dir> --cov-report=xml
