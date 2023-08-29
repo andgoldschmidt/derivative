@@ -1,7 +1,32 @@
+import sys
+
 from functools import _CacheInfo as CacheInfo, wraps
 from collections import OrderedDict, Counter
 import numpy as np
 from scipy.special import binom
+
+if sys.version_info < (3, 10):
+    from importlib_metadata import entry_points
+else:
+    from importlib.metadata import entry_points
+
+hyperparam_algorithms = entry_points(group="derivative.hyperparam_opt")
+
+
+def _load_hyperparam_func(func_key):
+    try:
+        func = hyperparam_algorithms[func_key].load()
+    except KeyError:
+        raise ValueError(
+            f"No reduction method named {func_key} is installed."
+            "Reduction methods need to be installed as an entry point to"
+            "the 'derivative.hyperparam_opt' group"
+        )
+    return func
+
+
+def _default_kalman(t, z):
+    return 1
 
 
 def deriv(n, dx, order):

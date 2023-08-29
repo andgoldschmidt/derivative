@@ -40,7 +40,7 @@ jobs:
           key: docs-${{ matrix.python-version }}-${{ matrix.poetry-version }}-${{ hashFiles('**/poetry.lock') }}
       - name: Install dependencies
         if: steps.cached-poetry-dependencies.outputs.cache-hit != 'true'
-        run: poetry install --no-interaction --no-root -E docs
+        run: poetry install --no-interaction -E docs
       # ======
       # Install Pandoc
       # ======

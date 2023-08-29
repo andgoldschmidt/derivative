@@ -1,10 +1,9 @@
 # Test the implementation of the interface for each method
 import derivative
-from derivative import dxdt, methods
+from derivative import dxdt, methods, utils
 import pytest
 import numpy as np
 import inspect
-
 
 def test_register():
     # Check that every class is registered in methods
@@ -89,3 +88,10 @@ def test_small():
     with pytest.warns(UserWarning): # numpy.RankWarning is of type UserWarning
         assert two.shape == dxdt(two, two, kind='savitzky_golay', **kwargs).shape
     assert three.shape == dxdt(three, three, kind='savitzky_golay', **kwargs).shape
+
+
+def test_hyperparam_entrypoint():
+    func = utils._load_hyperparam_func("kalman.default")
+    expected = 1
+    result = func(None, None)
+    assert result == expected

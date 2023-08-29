@@ -39,3 +39,6 @@ dev = ["pytest"]
 [build-system]
 requires = ["poetry-core>=1.1.0"]
 build-backend = "poetry.core.masonry.api"
+
+[tool.poetry.plugins.'derivative.hyperparam_opt']
+"kalman.default" = "derivative.utils:_default_kalman"
