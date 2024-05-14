@@ -7,7 +7,7 @@ on:
 
 jobs:
   release:
-    name: Deploy release to Test-PyPI
+    name: Deploy release to PyPI
     runs-on: ubuntu-latest
     environment:
 #      name: testpypi
@@ -21,7 +21,7 @@ jobs:
       # Checkout, set up python
       # ======
       - name: Checkout source
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
       - name: Set up Python ${{ matrix.python-version }}
         uses: actions/setup-python@v4
         with:
