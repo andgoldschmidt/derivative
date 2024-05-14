@@ -33,6 +33,10 @@ def test_axis():
     shape2 = ts.shape
     test3 = dxdt(ts, ts, axis=1).shape
     assert shape2 == test3
+    n = 4
+    x3d = np.tile(np.arange(n), (n, n, 1))
+    test_4 = dxdt(x3d, np.arange(n), axis=2)
+    np.testing.assert_array_equal(test_4, np.ones((n,n,n)))
 
 
 def test_empty():
