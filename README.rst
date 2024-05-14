@@ -57,10 +57,10 @@ Contributors:
 -------------
 Thanks to the members of the community who have contributed!
 
-+-----------------------------------------------------------------+----------------------------------------------------------------------------------+
-|  `Jacob Stevens-Haas <https://github.com/Jacob-Stevens-Haas>`_  | Kalman derivatives `#12 <https://github.com/andgoldschmidt/derivative/pull/12>`_,|
-|								  | Kernel derivatives `#30 <https://github.com/andgoldschmidt/derivative/pull/30>`_ |  
-+-----------------------------------------------------------------+----------------------------------------------------------------------------------+
++-----------------------------------------------------------------+-----------------------------------------------------------------------------------+
+|`Jacob Stevens-Haas <https://github.com/Jacob-Stevens-Haas>`_    | Kalman derivatives `#12 <https://github.com/andgoldschmidt/derivative/pull/12>`_, |
+|                                                                 | and more!                                                                         |
++-----------------------------------------------------------------+-----------------------------------------------------------------------------------+
 
 
 References:
@@ -83,18 +83,18 @@ Kaptanoglu et al., (2022). PySINDy: A comprehensive Python package for robust sp
 
 .. code-block:: text
 
-      @article{kaptanoglu2022pysindy,
-  	doi = {10.21105/joss.03994},
-  	url = {https://doi.org/10.21105/joss.03994},
-  	year = {2022},
-  	publisher = {The Open Journal},
-  	volume = {7},
-  	number = {69},
-  	pages = {3994},
-  	author = {Alan A. Kaptanoglu and Brian M. de Silva and Urban Fasel and Kadierdan Kaheman and Andy J. Goldschmidt and Jared Callaham and Charles B. Delahunt and Zachary G. Nicolaou and Kathleen Champion and Jean-Christophe Loiseau and J. Nathan Kutz and Steven L. Brunton},
-  	title = {PySINDy: A comprehensive Python package for robust sparse system identification},
-  	journal = {Journal of Open Source Software}
-	}
+	@article{kaptanoglu2022pysindy,
+		doi = {10.21105/joss.03994},
+		url = {https://doi.org/10.21105/joss.03994},
+		year = {2022},
+		publisher = {The Open Journal},
+		volume = {7},
+		number = {69},
+		pages = {3994},
+		author = {Alan A. Kaptanoglu and Brian M. de Silva and Urban Fasel and Kadierdan Kaheman and Andy J. Goldschmidt and Jared Callaham and Charles B. Delahunt and Zachary G. Nicolaou and Kathleen Champion and Jean-Christophe Loiseau and J. Nathan Kutz and Steven L. Brunton},
+		title = {PySINDy: A comprehensive Python package for robust sparse system identification},
+		journal = {Journal of Open Source Software}
+		}
     
 
 .. |RTD| image:: https://readthedocs.org/projects/derivative/badge/?version=latest
