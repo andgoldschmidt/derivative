@@ -17,7 +17,7 @@ jobs:
       # Checkout, set up python
       # ======
       - name: Check out
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
       - name: Set up Python ${{ matrix.python-version }}
         uses: actions/setup-python@v4
         with:
@@ -27,7 +27,7 @@ jobs:
       # ======
       - name: Load cached Poetry installation
         id: cached-poetry
-        uses: actions/cache@v3
+        uses: actions/cache@v4
         with:
           path: ~/.local  # the path depends on the OS
           key: poetry-${{ matrix.poetry-version }}
@@ -44,7 +44,7 @@ jobs:
       # ======
       - name: Load cached venv
         id: cached-poetry-dependencies-dev
-        uses: actions/cache@v3
+        uses: actions/cache@v4
         with:
           path: .venv
           key: dev-${{ matrix.python-version }}-${{ matrix.poetry-version }}-${{ hashFiles('**/poetry.lock') }}
