@@ -99,3 +99,11 @@ def test_hyperparam_entrypoint():
     expected = 1
     result = func(None, None)
     assert result == expected
+
+
+def test_negative_axis():
+    t = np.arange(3)
+    x = np.ones((2, 3, 2))
+    axis = -2
+    dx = dxdt(x, t, kind='finite_difference', axis=axis, k=1)
+    assert x.shape == dx.shape
