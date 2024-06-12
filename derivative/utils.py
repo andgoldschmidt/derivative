@@ -5,10 +5,11 @@ from collections import OrderedDict, Counter
 import numpy as np
 from scipy.special import binom
 
-if sys.version_info < (3, 10):
-    from importlib_metadata import entry_points
-else:
+try:
     from importlib.metadata import entry_points
+except ImportError:
+    # if sys.version_info < (3, 10):
+    from importlib_metadata import entry_points
 
 hyperparam_algorithms = entry_points(group="derivative.hyperparam_opt")
 
