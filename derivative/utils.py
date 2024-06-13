@@ -11,7 +11,11 @@ except ImportError:
     # if sys.version_info < (3, 10):
     from importlib_metadata import entry_points
 
-hyperparam_algorithms = entry_points(group="derivative.hyperparam_opt")
+try:
+	hyperparam_algorithms = entry_points(group="derivative.hyperparam_opt")
+except TypeError as exc:
+	import sys
+	raise TypeError(f"Oops, no 'group' kwarg.  function imported from {entry_points.__module__}")
 
 
 def _load_hyperparam_func(func_key):
