@@ -28,6 +28,13 @@ jobs:
         with:
           path: ~/.local  # the path depends on the OS
           key: poetry-${{ matrix.poetry-version }}
+      - name: Install poetry
+        if: steps.cached-poetry.outputs.cache-hit != 'true'
+        uses: snok/install-poetry@v1
+        with:
+          version: ${{ matrix.poetry-version }}
+          virtualenvs-create: true
+          virtualenvs-in-project: true
       # ======
       # Load cached venv if cache exists
       # Install dependencies if cache does not exist
