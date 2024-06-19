@@ -99,3 +99,14 @@ def test_hyperparam_entrypoint():
     expected = 1
     result = func(None, None)
     assert result == expected
+
+
+def test_negative_axis():
+    t = np.arange(3)
+    x = np.random.random(size=(2, 3, 2))
+    x[1, :, 1] = 1
+    axis = -2
+    expected = np.zeros(3)
+    dx = dxdt(x, t, kind='finite_difference', axis=axis, k=1)
+    assert x.shape == dx.shape
+    np.testing.assert_array_almost_equal(dx[1, :, 1], expected)
