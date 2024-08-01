@@ -120,3 +120,9 @@ jobs:
           cd asv_bench
           git fetch origin $GITHUB_BASE_REF:base $GITHUB_REF:pr
           asv continuous base pr -e
+          asv publish
+      - name: save benchmark results
+        uses: actions/upload-artifact@v4
+        with:
+          name: Benchmarks
+          path: asv_bench/.asv/html/
