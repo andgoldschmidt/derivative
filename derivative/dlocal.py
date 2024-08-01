@@ -35,8 +35,6 @@ class FiniteDifference(Derivative):
         return np.sum(res)
 
     def compute(self, t, x, i):
-        import time
-        time.sleep(1e-3)
         dt = t[1] - t[0]
 
         if not self.periodic:
