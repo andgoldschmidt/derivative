@@ -15,7 +15,5 @@ class FiniteDifferenceBM:
     def time_derivative(self):
         self.differentiator.d(X=self.t, t=self.t, axis=0)
 
-
-class MemSuite:
-    def mem_list(self):
-        return [0] * 256
+    def peakmem_derivative(self):
+        self.differentiator.d(X=self.t, t=self.t, axis=0)
