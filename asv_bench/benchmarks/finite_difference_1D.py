@@ -1,29 +1,19 @@
 # Write the benchmarking functions here.
 # See "Writing benchmarks" in the asv docs for more information.
+import numpy as np
+from derivative import FiniteDifference
 
-
-class TimeSuite:
+class FiniteDifferenceBM:
     """
     An example benchmark that times the performance of various kinds
     of iterating over dictionaries in Python.
     """
     def setup(self):
-        self.d = {}
-        for x in range(500):
-            self.d[x] = None
+        self.differentiator = FiniteDifference(k=1)
+        self.t = np.arange(0, 2 * np.pi, .01)
 
-    def time_keys(self):
-        for key in self.d.keys():
-            pass
-
-    def time_values(self):
-        for value in self.d.values():
-            pass
-
-    def time_range(self):
-        d = self.d
-        for key in range(500):
-            d[key]
+    def time_derivative(self):
+        self.differentiator.d(X=self.t, t=self.t, axis=0)
 
 
 class MemSuite:
