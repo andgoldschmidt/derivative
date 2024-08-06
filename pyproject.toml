@@ -30,11 +30,12 @@ matplotlib = {version = "^3.2.1", optional = true}
 #pandoc = {version = "^2.2", optional = true}
 
 # dev
+asv = {version = "^0.6", optional = true}
 pytest = {version = "^7", optional = true}
 
 [tool.poetry.extras]
 docs = ["sphinx", "nbsphinx", "ipykernel", "jupyter_client", "matplotlib", "pandoc"]
-dev = ["pytest"]
+dev = ["asv", "pytest"]
 
 [build-system]
 requires = ["poetry-core>=1.1.0"]

@@ -120,3 +120,11 @@ venv.bak/
 
 # Exploratory work
 playground/
+
+# Unit / Performance Testing #
+##############################
+asv_bench/.asv/env/
+asv_bench/.asv/html/
+asv_bench/.asv/results/
+asv_bench/derivative/
+test-data.xml
