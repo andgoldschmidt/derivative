@@ -5,6 +5,11 @@ import pytest
 import numpy as np
 import inspect
 
+if int(np.__version__.split(".")[0]) == 1:
+    from numpy.polynomial.polyutils import RankWarning
+else:
+    from numpy.exceptions import RankWarning
+
 def test_register():
     # Check that every class is registered in methods
     class_list = inspect.getmembers(derivative.dlocal, inspect.isclass)\
@@ -89,7 +94,7 @@ def test_small():
 
     # savitzky_golay - RankWarning: The fit may be poorly conditioned if order >= points in window
     kwargs = {'left': 2, 'right': 2, 'iwindow': True, 'order': 2}
-    with pytest.warns(UserWarning): # numpy.RankWarning is of type UserWarning
+    with pytest.warns(RankWarning):
         assert two.shape == dxdt(two, two, kind='savitzky_golay', **kwargs).shape
     assert three.shape == dxdt(three, three, kind='savitzky_golay', **kwargs).shape
 

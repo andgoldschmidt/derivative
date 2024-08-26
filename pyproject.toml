@@ -16,7 +16,7 @@ readme = "README.rst"
 
 [tool.poetry.dependencies]
 python = "^3.9"
-numpy = "^1.18.3"
+numpy = ">=1.18.3"
 scipy = "^1.4.1"
 scikit-learn = "^1"
 importlib-metadata = "^7.1.0"
