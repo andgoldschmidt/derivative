@@ -4,7 +4,7 @@ build-backend = "poetry.core.masonry.api"
 
 [tool.poetry]
 name = "derivative"
-version = "0.6.2"
+version = "0.6.3"
 description = "Numerical differentiation in python."
 repository = "https://github.com/andgoldschmidt/derivative"
 documentation = "https://derivative.readthedocs.io/"
@@ -23,7 +23,7 @@ python = "^3.9"
 numpy = ">=1.18.3"
 scipy = "^1.4.1"
 scikit-learn = "^1"
-importlib-metadata = "^7.1.0"
+importlib-metadata = ">=7.1.0"
 
 # docs
 sphinx = {version = "7.2.6", optional = true}
