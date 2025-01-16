@@ -7,16 +7,20 @@ from numpy.linalg import inv
 from scipy import interpolate, sparse
 from scipy.special import legendre
 from sklearn.linear_model import Lasso
+from specderiv import cheb_deriv, fourier_deriv
 
 
 @register("spectral")
 class Spectral(Derivative):
-    def __init__(self, **kwargs):
+    def __init__(self, order=1, axis=0, basis='chebyshev', **kwargs):
         """
         Compute the numerical derivative by first computing the FFT. In Fourier space, derivatives are multiplication
         by i*phase; compute the IFFT after.
 
         Args:
+            order (int): order of the derivative, defaults to 1st order
+            axis (int): the dimension of the data along which to differentiate, defaults to first dimension
+            basis (str): "chebyshev" or "fourier", the set of basis functions to use for differentiation
             **kwargs: Optional keyword arguments.
 
         Keyword Args:
@@ -28,19 +32,35 @@ class Spectral(Derivative):
         """
         # Filter function. Default: Identity filter
         self.filter = kwargs.get('filter', np.vectorize(lambda f: 1))
-        self._x_hat = None
-        self._freq = None
+        self.order = order
+        if basis not in ['chebyshev', 'fourier']:
+            raise ValueError("Only chebyshev and fourier bases are allowed.")
+        self.basis = basis
 
-    def _dglobal(self, t, x):
-        self._x_hat = np.fft.fft(x)
-        self._freq = np.fft.fftfreq(t.size, d=(t[1] - t[0]))
+    def _global(self, t, x):
+        if basis == 'chebyshev':
+            # Check that t is properly cosine-spaced. `cheb_deriv` is agnostic to the domain the data actually lives
+            # on, but in order for the user to get back what they expect, it's important the domain actually be a
+            # linear map of cosine-spaced points on [-1, 1], i.e. t_n = np.cos(np.arange(N+1) * np.pi / N)
+            cosine_spaced = np.cos(np.arange(N+1) * np.pi / N) * (t[-1] - t[0])/2 + (t[-1] + t[0])/2
+            if not numpy.allclose(t, cosine_spaced):
+                raise ValueError("Your domain t is not cosine-spaced. Must be `np.cos(np.arange(N+1) * np.pi / N) * (t[-1] - t[0])/2 + (t[-1] + t[0])/2`")
+            return cheb_deriv(x, self.order, self.axis)
+
+        else: # basis == 'fourier'
+            # Check that t is an open periodic interval. `fourier_deriv` is agnostic to the domain the data actually
+            # lives on, but in order for the user to get back what they expect, it's important the domain actually
+            # be a linear map of equispaced points on [0, 2pi), i.e np.arange(0, M) * 2*np.pi / M
+            zero_2pi_open = (np.arange(0, M) * 2*np.pi / M) * ((t[-1] - t[0])/(2*np.pi) + 1/(len(t)+1)) + t[0]
+            if not numpy.allcose(t, zero_2pi_open):
+                raise ValueError("Your domain t does not map to [0, 2pi). Must be `(np.arange(0, M) * 2*np.pi / M) * ((t[-1] - t[0])/(2*np.pi) + 1/(len(t)+1)) + t[0]`")
+            return fourier_deriv(x, self.order, self.axis)
 
     def compute(self, t, x, i):
         return next(self.compute_for(t, x, [i]))
 
     def compute_for(self, t, x, indices):
-        self._dglobal(t, x)
-        res = np.fft.ifft(1j * 2 * np.pi * self._freq * self.filter(self._freq) * self._x_hat).real
+        res = self._global(t, x) # cached
         for i in indices:
             yield res[i]
 
@@ -211,7 +231,6 @@ class Kalman(Derivative):
             alpha (float): Ratio of measurement error variance to assumed process variance.
         """
         self.alpha = alpha
-
 
     @_memoize_arrays(1)
     def _global(self, t, z, alpha):

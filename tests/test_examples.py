@@ -174,7 +174,7 @@ def method_inst(request):
     method._global.cache_clear()
 
 
-@pytest.mark.parametrize("method_inst", ["kalman", "trend_filtered"], indirect=True)
+@pytest.mark.parametrize("method_inst", ["kalman", "trend_filtered", "spectral"], indirect=True)
 def test_dglobal_caching(method_inst):
     # make sure we're not recomputing expensive _global() method
     x, t, method = method_inst

@@ -100,7 +100,7 @@ class Derivative(abc.ABC):
         """
         Compute the derivative of one-dimensional data x with respect to t at the index i of x, (dx/dt)[i].
 
-        Computation of a derivative should fail explicitely if the implementation is unable to compute a derivative at
+        Computation of a derivative should fail explicitly if the implementation is unable to compute a derivative at
         the desired index. Used for global differentiation methods, for example.
 
         This requires that x and t have equal lengths >= 2, and that the index i is a valid index.
