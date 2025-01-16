@@ -51,9 +51,9 @@ class Spectral(Derivative):
             # Check that t is an open periodic interval. `fourier_deriv` is agnostic to the domain the data actually
             # lives on, but in order for the user to get back what they expect, it's important the domain actually
             # be a linear map of equispaced points on [0, 2pi), i.e np.arange(0, M) * 2*np.pi / M
-            zero_2pi_open = (np.arange(0, M) * 2*np.pi / M) * ((t[-1] - t[0])/(2*np.pi) + 1/(len(t)+1)) + t[0]
+            zero_2pi_open = np.arange(0, M) * (t[1] - t[0]) + t[0]`
             if not numpy.allcose(t, zero_2pi_open):
-                raise ValueError("Your domain t does not map to [0, 2pi). Must be `(np.arange(0, M) * 2*np.pi / M) * ((t[-1] - t[0])/(2*np.pi) + 1/(len(t)+1)) + t[0]`")
+                raise ValueError("Your domain t does not map to [0, 2pi). Must be `np.arange(0, M) * (t[1] - t[0]) + t[0]`")
             return fourier_deriv(x, self.order, self.axis)
 
     def compute(self, t, x, i):
