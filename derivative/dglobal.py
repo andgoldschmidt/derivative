@@ -38,23 +38,10 @@ class Spectral(Derivative):
         self.basis = basis
 
     def _global(self, t, x):
-        if basis == 'chebyshev':
-            # Check that t is properly cosine-spaced. `cheb_deriv` is agnostic to the domain the data actually lives
-            # on, but in order for the user to get back what they expect, it's important the domain actually be a
-            # linear map of cosine-spaced points on [-1, 1], i.e. t_n = np.cos(np.arange(N+1) * np.pi / N)
-            cosine_spaced = np.cos(np.arange(N+1) * np.pi / N) * (t[-1] - t[0])/2 + (t[-1] + t[0])/2
-            if not numpy.allclose(t, cosine_spaced):
-                raise ValueError("Your domain t is not cosine-spaced. Must be `np.cos(np.arange(N+1) * np.pi / N) * (t[-1] - t[0])/2 + (t[-1] + t[0])/2`")
-            return cheb_deriv(x, self.order, self.axis)
-
-        else: # basis == 'fourier'
-            # Check that t is an open periodic interval. `fourier_deriv` is agnostic to the domain the data actually
-            # lives on, but in order for the user to get back what they expect, it's important the domain actually
-            # be a linear map of equispaced points on [0, 2pi), i.e np.arange(0, M) * 2*np.pi / M
-            zero_2pi_open = np.arange(0, M) * (t[1] - t[0]) + t[0]`
-            if not numpy.allcose(t, zero_2pi_open):
-                raise ValueError("Your domain t does not map to [0, 2pi). Must be `np.arange(0, M) * (t[1] - t[0]) + t[0]`")
-            return fourier_deriv(x, self.order, self.axis)
+        if self.basis == 'chebyshev':
+            return cheb_deriv(x, t, self.order, self.axis)
+        else: # self.basis == 'fourier'
+            return fourier_deriv(x, t, self.order, self.axis)
 
     def compute(self, t, x, i):
         return next(self.compute_for(t, x, [i]))
