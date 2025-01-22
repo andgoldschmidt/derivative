@@ -8,8 +8,9 @@ from derivative.differentiation import _gen_method
 # Utilities for tests
 # ===================
 def default_args(kind):
-    """ The assumption is that the function will have dt = 1/100 over a range of 1 and not vary much. The goal is to
-     to set the parameters such that we obtain effective derivatives under these conditions.
+    """ The assumption is that the function will have dt = 1/100 or 2pi/100 over an interval of length 1 or 2pi
+    and not vary much. The goal is to to set the parameters such that we obtain effective derivatives under these
+    conditions.
     """
     if kind == 'spectral':
         # frequencies should be guaranteed to be between 0 and 50 (a filter will reduce bad outliers)
@@ -81,24 +82,15 @@ funcs_and_derivs = (
     (lambda t: -t, "f(t) = -t", lambda t: -np.ones_like(t), "lin-neg"),
     (lambda t: t ** 2 - t + np.ones_like(t), "f(t) = t^2-t+1", lambda t: 2 * t -np.ones_like(t), "polynomial"),
     (lambda t: np.sin(t) + np.ones_like(t) / 2, "f(t) = sin(t)+1/2", lambda t: np.cos(t), "trig"),
-    (
-        lambda t: np.array([2 * t, - t]),
-        "f(t) = [2t, -t]",
-        lambda t: np.vstack((2 * np.ones_like(t), -np.ones_like(t))),
-        "2D linear",
-    ),
-    (
-        lambda t: np.array([np.sin(t), np.cos(t)]),
-        "f(t) = [sin(t), cos(t)]",
-        lambda t: np.vstack((np.cos(t), -np.sin(t))),
-        "2D trig",
-    ),
+    (lambda t: np.array([2 * t, - t]), "f(t) = [2t, -t]", lambda t: np.vstack((2 * np.ones_like(t), -np.ones_like(t))), "2D linear"),
+    (lambda t: np.array([np.sin(t), np.cos(t)]), "f(t) = [sin(t), cos(t)]", lambda t: np.vstack((np.cos(t), -np.sin(t))),  "2D trig",
+),
 )
 @pytest.mark.parametrize("m", methods)
-@pytest.mark.parametrize("func_spec", funcs_and_derivs, ids=(tup[-1] for tup in funcs_and_derivs))
+@pytest.mark.parametrize("func_spec", funcs_and_derivs)
 def test_fn(m, func_spec):
     func, fname, deriv, f_id = func_spec
-    t = np.linspace(0, 2*np.pi, 100)
+    t = np.linspace(0, 2*np.pi, 100, endpoint=False) # For periodic functions, it's important the endpoint not be included
     if m == 'trend_filtered':
         # Add noise to avoid all zeros non-convergence warning for sklearn lasso
         f_mod = lambda t: func(t) + 1e-9 * np.random.randn(*t.shape) # rename to avoid infinite loop
@@ -106,7 +98,7 @@ def test_fn(m, func_spec):
         f_mod = func
     nexp = NumericalExperiment(f_mod, fname, t, m, default_args(m))
     bad_combo=False
-    # spectral is only accurate for periodic data.  Ideally fixed in decorators
+    # spectral is only accurate for periodic data. Ideally fixed in decorators
     if ("lin" in f_id or "poly" in f_id) and m == "spectral":
         bad_combo=True
     compare(nexp, deriv(t), 1e-1, 1e-1, bad_combo)
