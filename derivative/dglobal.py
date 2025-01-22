@@ -12,36 +12,36 @@ from specderiv import cheb_deriv, fourier_deriv
 
 @register("spectral")
 class Spectral(Derivative):
-    def __init__(self, order=1, axis=0, basis='chebyshev', **kwargs):
+    def __init__(self, order=1, axis=0, basis='fourier', filter=None):
         """
-        Compute the numerical derivative by first computing the FFT. In Fourier space, derivatives are multiplication
-        by i*phase; compute the IFFT after.
-
-        Args:
+        Compute the numerical derivative by spectral methods. In Fourier space, derivatives are multiplication
+        by i*phase; compute the inverse transform after. Use either Fourier modes of Chebyshev polynomials as
+        the basis.
+        
+        Keyword Args:
             order (int): order of the derivative, defaults to 1st order
             axis (int): the dimension of the data along which to differentiate, defaults to first dimension
-            basis (str): "chebyshev" or "fourier", the set of basis functions to use for differentiation
-            **kwargs: Optional keyword arguments.
-
-        Keyword Args:
-            filter: Optional. A function that takes in frequencies and outputs weights to scale the coefficient at
-                the input frequency in Fourier space. Input frequencies are the discrete fourier transform sample
-                frequencies associated with the domain variable. Look into python signal processing resources in
-                scipy.signal for common filters.
-
+            basis (str): 'fourier' or 'chebyshev', the set of basis functions to use for differentiation
+                Note `basis='fourier'` assumes your function is periodic and sampled over a period of its domain,
+                [a, b), and `basis='chebyshev'` assumes your function is sampled at cosine-spaced points on the
+                domain [a, b].
+            filter: Optional. A function that takes in wavenumbers and outputs weights to scale the
+                corresponding mode in frequency space. Input wavenumbers are the k used in the discrete fourier
+                transform. Look into python signal processing resources in scipy.signal for common filters.
         """
-        # Filter function. Default: Identity filter
-        self.filter = kwargs.get('filter', np.vectorize(lambda f: 1))
         self.order = order
+        self.axis = axis
         if basis not in ['chebyshev', 'fourier']:
             raise ValueError("Only chebyshev and fourier bases are allowed.")
         self.basis = basis
+        self.filter = filter
 
+    @_memoize_arrays(1) # the memoization is 1 deep, as in only remembers the most recent args
     def _global(self, t, x):
         if self.basis == 'chebyshev':
-            return cheb_deriv(x, t, self.order, self.axis)
+            return cheb_deriv(x, t, self.order, self.axis, self.filter)
         else: # self.basis == 'fourier'
-            return fourier_deriv(x, t, self.order, self.axis)
+            return fourier_deriv(x, t, self.order, self.axis, self.filter)
 
     def compute(self, t, x, i):
         return next(self.compute_for(t, x, [i]))
