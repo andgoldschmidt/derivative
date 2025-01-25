@@ -86,6 +86,7 @@ funcs_and_derivs = (
     (lambda t: np.array([np.sin(t), np.cos(t)]), "f(t) = [sin(t), cos(t)]", lambda t: np.vstack((np.cos(t), -np.sin(t))),  "2D trig",
 ),
 )
+@pytest.mark.filterwarnings('ignore::sklearn.exceptions.ConvergenceWarning')
 @pytest.mark.parametrize("m", methods)
 @pytest.mark.parametrize("func_spec", funcs_and_derivs)
 def test_fn(m, func_spec):
@@ -168,8 +169,9 @@ def method_inst(request):
     yield x, t, method
     method._global.cache_clear()
 
-@pytest.mark.parametrize("method_inst", ["kalman", "trend_filtered", "spectral"], indirect=True)
-def test_dglobal_caching(method_inst):
+@pytest.mark.filterwarnings('ignore::sklearn.exceptions.ConvergenceWarning')
+@pytest.mark.parametrize("method_inst", ["kalman", "trend_filtered"], indirect=True)
+def test_global_caching_xd(method_inst):
     # make sure we're not recomputing expensive _global() method
     x, t, method = method_inst
     method.x(x, t)
@@ -178,10 +180,22 @@ def test_dglobal_caching(method_inst):
     assert method._global.cache_info().misses == 1
     assert method._global.cache_info().currsize == 1
 
+@pytest.mark.filterwarnings('ignore::sklearn.exceptions.ConvergenceWarning')
 @pytest.mark.parametrize("method_inst", ["kalman", "trend_filtered", "spectral"], indirect=True)
+def test_global_caching_dd(method_inst):
+    # make sure we're not recomputing expensive _global() method
+    x, t, method = method_inst
+    method.d(x, t)
+    method.d(x, t)
+    assert method._global.cache_info().hits == 1
+    assert method._global.cache_info().misses == 1
+    assert method._global.cache_info().currsize == 1
+
+@pytest.mark.filterwarnings('ignore::sklearn.exceptions.ConvergenceWarning')
+@pytest.mark.parametrize("method_inst", ["kalman", "trend_filtered"], indirect=True)
 def test_cached_global_order(method_inst):
     x, t, method = method_inst
     x = np.vstack((x, -x))
-    first_result = method.x(x, t)
-    second_result = method.x(x, t)
+    first_result = method.x(x, t, axis=1)
+    second_result = method.x(x, t, axis=1)
     np.testing.assert_equal(first_result, second_result)

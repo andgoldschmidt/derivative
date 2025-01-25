@@ -21,7 +21,7 @@ def _gen_method(x, t, kind, axis, **kwargs):
     return methods.get(kind)(**kwargs)
 
 
-def dxdt(x, t, kind=None, axis=1, **kwargs):
+def dxdt(x, t, kind=None, axis=0, **kwargs):
     """
     Compute the derivative of x with respect to t along axis using the numerical derivative specified by "kind". This is
     the functional interface of the Derivative class.
@@ -35,7 +35,7 @@ def dxdt(x, t, kind=None, axis=1, **kwargs):
         x (:obj:`ndarray` of float): Ordered measurement values.
         t (:obj:`ndarray` of float): Ordered measurement times.
         kind (string): Derivative method name (see available kinds).
-        axis ({0,1}): Axis of x along which to differentiate. Default 1.
+        axis ({0,1}): Axis of x along which to differentiate. Default 0.
         **kwargs: Keyword arguments for the derivative method "kind".
 
     Available kinds
@@ -56,7 +56,7 @@ def dxdt(x, t, kind=None, axis=1, **kwargs):
         return method.d(x, t, axis=axis)
 
 
-def smooth_x(x, t, kind=None, axis=1, **kwargs):
+def smooth_x(x, t, kind=None, axis=0, **kwargs):
     """
     Compute the smoothed version of x given t along axis using the numerical
     derivative specified by "kind". This is the functional interface of
@@ -71,7 +71,7 @@ def smooth_x(x, t, kind=None, axis=1, **kwargs):
         x (:obj:`ndarray` of float): Ordered measurement values.
         t (:obj:`ndarray` of float): Ordered measurement times.
         kind (string): Derivative method name (see available kinds).
-        axis ({0,1}): Axis of x along which to differentiate. Default 1.
+        axis ({0,1}): Axis of x along which to differentiate. Default 0.
         **kwargs: Keyword arguments for the derivative method "kind".
 
     Available kinds
@@ -174,7 +174,7 @@ class Derivative(abc.ABC):
         for i in indices:
             yield self.compute_x(t, x, i)
 
-    def d(self, X, t, axis=1):
+    def d(self, X, t, axis=0):
         """
         Compute the derivative of measurements X taken at times t.
 
@@ -184,7 +184,7 @@ class Derivative(abc.ABC):
         Args:
             X  (:obj:`ndarray` of float): Ordered measurements values. Multiple measurements allowed.
             t (:obj:`ndarray` of float): Ordered measurement times.
-            axis ({0,1}). axis of X along which to differentiate. default 1.
+            axis ({0,1}). axis of X along which to differentiate. default 0.
 
         Returns:
             :obj:`ndarray` of float: Returns dX/dt along axis.
@@ -202,7 +202,7 @@ class Derivative(abc.ABC):
         return _restore_axes(dX, axis, flat)
 
 
-    def x(self, X, t, axis=1):
+    def x(self, X, t, axis=0):
         """
         Compute the smoothed X values from measurements X taken at times t.
 
@@ -212,7 +212,7 @@ class Derivative(abc.ABC):
         Args:
             X  (:obj:`ndarray` of float): Ordered measurements values. Multiple measurements allowed.
             t (:obj:`ndarray` of float): Ordered measurement times.
-            axis ({0,1}). axis of X along which to smooth. default 1.
+            axis ({0,1}). axis of X along which to smooth. default 0.
 
         Returns:
             :obj:`ndarray` of float: Returns dX/dt along axis.
@@ -228,6 +228,8 @@ class Derivative(abc.ABC):
 
 
 def _align_axes(X, t, axis) -> tuple[NDArray, tuple[int, ...]]:
+    """Reshapes the data so the derivative always happens along axis 1. Do we need this?
+    """
     X = np.array(X)
     orig_shape = X.shape
     # By convention, differentiate axis 1

@@ -38,6 +38,7 @@ class Spectral(Derivative):
 
     @_memoize_arrays(1) # the memoization is 1 deep, as in only remembers the most recent args
     def _global(self, t, x):
+        print("HELLO!")
         if self.basis == 'chebyshev':
             return cheb_deriv(x, t, self.order, self.axis, self.filter)
         else: # self.basis == 'fourier'
