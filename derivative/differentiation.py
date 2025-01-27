@@ -228,7 +228,7 @@ class Derivative(abc.ABC):
 
 
 def _align_axes(X, t, axis) -> tuple[NDArray, tuple[int, ...]]:
-    """Reshapes the data so the derivative always happens along axis 1. Do we need this?
+    """Reshapes the data so the derivative always happens along axis 1.
     """
     X = np.array(X)
     orig_shape = X.shape
@@ -246,6 +246,8 @@ def _align_axes(X, t, axis) -> tuple[NDArray, tuple[int, ...]]:
 
 
 def _restore_axes(dX: NDArray, axis: int, orig_shape: tuple[int, ...]) -> NDArray:
+    """Undo the operation of _align_axes, so data can be returned in its original shape
+    """
     if len(orig_shape) == 1:
         return dX.flatten()
     else:
