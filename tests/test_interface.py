@@ -57,15 +57,15 @@ def test_one():
     twobyone = np.arange(2).reshape(2,1)
     for data in [one, twobyone]:
         # spectral
-        assert np.all(data == dxdt(data, one, kind='spectral'))
+        assert np.all(data == dxdt(data, one, kind='spectral', axis=1))
         # spline
-        assert np.all(data == dxdt(data, one, kind='spline', order=1, s=.01))
+        assert np.all(data == dxdt(data, one, kind='spline', axis=1, order=1, s=.01))
         # trend_filtered
-        assert np.all(data == dxdt(data, one, kind='trend_filtered', order=1, alpha=.01, max_iter=1e3))
+        assert np.all(data == dxdt(data, one, kind='trend_filtered', axis=1, order=1, alpha=.01, max_iter=1e3))
         # finite_difference
-        assert np.all(data == dxdt(data, one, kind='finite_difference', k=1))
+        assert np.all(data == dxdt(data, one, kind='finite_difference', axis=1, k=1))
         # savitzky_golay
-        assert np.all(data == dxdt(data, one, kind='savitzky_golay', order=1, left=2, right=2, iwindow=True))
+        assert np.all(data == dxdt(data, one, kind='savitzky_golay', axis=1, order=1, left=2, right=2, iwindow=True))
 
 
 def test_small():
