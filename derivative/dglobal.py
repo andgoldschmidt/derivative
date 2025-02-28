@@ -25,9 +25,12 @@ class Spectral(Derivative):
                 Note `basis='fourier'` assumes your function is periodic and sampled over a period of its domain,
                 [a, b), and `basis='chebyshev'` assumes your function is sampled at cosine-spaced points on the
                 domain [a, b].
-            filter: Optional. A function that takes in wavenumbers and outputs weights to scale the
-                corresponding mode in frequency space. Input wavenumbers are the k used in the discrete fourier
-                transform. Look into python signal processing resources in scipy.signal for common filters.
+            filter: Optional. A function that takes in basis function indices and outputs weights, which scale
+                the corresponding modes in the basis-space interpolation before derivatives are taken, e.g.
+                `lambda k: k<10` will keep only the first ten modes. With the Fourier basis, k corresponds to
+                wavenumbers, so common filters from scipy.signal can be used. In the Chebyshev basis, modes do
+                not directly correspond to frequencies, so high frequency noise can not be separated quite as
+                cleanly, however it still may be helpful to dampen higher modes.
         """
         self.order = order
         self.axis = axis

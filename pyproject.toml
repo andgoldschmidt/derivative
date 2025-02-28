@@ -17,14 +17,13 @@ authors = [
 license = "MIT"
 readme = "README.rst"
 
-
 [tool.poetry.dependencies]
 python = "^3.9"
 numpy = ">=1.18.3"
 scipy = "^1.4.1"
 scikit-learn = "^1"
 importlib-metadata = ">=7.1.0"
-spectral-derivatives = ">=0.7.4"
+spectral-derivatives = ">=0.8"
 
 # docs
 sphinx = {version = "7.2.6", optional = true}
@@ -33,7 +32,6 @@ matplotlib = {version = "^3.2.1", optional = true}
 ipython = {version = "^8.0.0, !=8.7.0, !=8.18.1", optional = true}
 ipykernel = {version = "^6.0.0", optional = true}
 
-
 # dev
 asv = {version = "^0.6", optional = true}
 pytest = {version = ">=7", optional = true}
@@ -41,7 +39,6 @@ pytest = {version = ">=7", optional = true}
 [tool.poetry.extras]
 docs = ["sphinx", "nbsphinx", "matplotlib", "ipython", "ipykernel"]
 dev = ["asv", "pytest"]
-
 
 [tool.poetry.plugins.'derivative.hyperparam_opt']
 "kalman.default" = "derivative.utils:_default_kalman"
