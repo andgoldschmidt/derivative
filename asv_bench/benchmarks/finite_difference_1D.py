@@ -1,13 +1,7 @@
-# Write the benchmarking functions here.
-# See "Writing benchmarks" in the asv docs for more information.
 import numpy as np
-from derivative import FiniteDifference
+from derivative import FiniteDifference, Kernel
 
 class FiniteDifferenceBM:
-    """
-    An example benchmark that times the performance of various kinds
-    of iterating over dictionaries in Python.
-    """
     def setup(self):
         self.differentiator = FiniteDifference(k=1)
         self.t = np.arange(0, 2 * np.pi, .01)
@@ -17,3 +11,15 @@ class FiniteDifferenceBM:
 
     def peakmem_derivative(self):
         self.differentiator.d(X=self.t, t=self.t, axis=0)
+
+class KernelBM:
+    def setup(self):
+        self.differentiator = Kernel(lmbd=.1)
+        self.t = np.arange(0, 2* np.pi, 0.01)
+        self.x = np.sin(self.t)
+
+    def time_derivative(self):
+        self.differentiator.d(X=self.x, t=self.t, axis=0)
+
+    def peakmem_derivative(self):
+        self.differentiator.d(X=self.x, t=self.t, axis=0)
