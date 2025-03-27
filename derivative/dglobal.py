@@ -5,6 +5,7 @@ from .utils import deriv, integ, _memoize_arrays, _load_hyperparam_func
 import numpy as np
 from numpy.linalg import inv
 from scipy import interpolate, sparse
+from scipy.linalg import solve
 from scipy.special import legendre
 from sklearn.linear_model import Lasso
 
@@ -299,7 +300,7 @@ class Kernel(Derivative):
         kernel = self._create_gram(k_fun, t)
         kernel_dt = self._create_gram(k_fun_dt, t)
         noisy_kernel = kernel + lmbd * np.eye(len(t))
-        alpha = np.linalg.solve(noisy_kernel, z)
+        alpha = solve(noisy_kernel, z, assume_a="pos")
         x_hat = kernel @ alpha
         x_dot_hat = kernel_dt @ alpha
         return x_hat, x_dot_hat
