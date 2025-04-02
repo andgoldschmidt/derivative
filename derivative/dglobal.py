@@ -7,40 +7,50 @@ from numpy.linalg import inv
 from scipy import interpolate, sparse
 from scipy.special import legendre
 from sklearn.linear_model import Lasso
+from specderiv import cheb_deriv, fourier_deriv
 
 
 @register("spectral")
 class Spectral(Derivative):
-    def __init__(self, **kwargs):
+    def __init__(self, order=1, axis=0, basis='fourier', filter=None):
         """
-        Compute the numerical derivative by first computing the FFT. In Fourier space, derivatives are multiplication
-        by i*phase; compute the IFFT after.
-
-        Args:
-            **kwargs: Optional keyword arguments.
-
+        Compute the numerical derivative by spectral methods. In Fourier space, derivatives are multiplication
+        by i*phase; compute the inverse transform after. Use either Fourier modes of Chebyshev polynomials as
+        the basis.
+        
         Keyword Args:
-            filter: Optional. A function that takes in frequencies and outputs weights to scale the coefficient at
-                the input frequency in Fourier space. Input frequencies are the discrete fourier transform sample
-                frequencies associated with the domain variable. Look into python signal processing resources in
-                scipy.signal for common filters.
-
+            order (int): order of the derivative, defaults to 1st order
+            axis (int): the dimension of the data along which to differentiate, defaults to first dimension
+            basis (str): 'fourier' or 'chebyshev', the set of basis functions to use for differentiation
+                Note `basis='fourier'` assumes your function is periodic and sampled over a period of its domain,
+                [a, b), and `basis='chebyshev'` assumes your function is sampled at cosine-spaced points on the
+                domain [a, b].
+            filter: Optional. A function that takes in basis function indices and outputs weights, which scale
+                the corresponding modes in the basis-space interpolation before derivatives are taken, e.g.
+                `lambda k: k<10` will keep only the first ten modes. With the Fourier basis, k corresponds to
+                wavenumbers, so common filters from scipy.signal can be used. In the Chebyshev basis, modes do
+                not directly correspond to frequencies, so high frequency noise can not be separated quite as
+                cleanly, however it still may be helpful to dampen higher modes.
         """
-        # Filter function. Default: Identity filter
-        self.filter = kwargs.get('filter', np.vectorize(lambda f: 1))
-        self._x_hat = None
-        self._freq = None
+        self.order = order
+        self.axis = axis
+        if basis not in ['chebyshev', 'fourier']:
+            raise ValueError("Only chebyshev and fourier bases are allowed.")
+        self.basis = basis
+        self.filter = filter
 
-    def _dglobal(self, t, x):
-        self._x_hat = np.fft.fft(x)
-        self._freq = np.fft.fftfreq(t.size, d=(t[1] - t[0]))
+    @_memoize_arrays(1) # the memoization is 1 deep, as in only remembers the most recent args
+    def _global(self, t, x):
+        if self.basis == 'chebyshev':
+            return cheb_deriv(x, t, self.order, self.axis, self.filter)
+        else: # self.basis == 'fourier'
+            return fourier_deriv(x, t, self.order, self.axis, self.filter)
 
     def compute(self, t, x, i):
         return next(self.compute_for(t, x, [i]))
 
     def compute_for(self, t, x, indices):
-        self._dglobal(t, x)
-        res = np.fft.ifft(1j * 2 * np.pi * self._freq * self.filter(self._freq) * self._x_hat).real
+        res = self._global(t, x) # cached
         for i in indices:
             yield res[i]
 
@@ -211,7 +221,6 @@ class Kalman(Derivative):
             alpha (float): Ratio of measurement error variance to assumed process variance.
         """
         self.alpha = alpha
-
 
     @_memoize_arrays(1)
     def _global(self, t, z, alpha):

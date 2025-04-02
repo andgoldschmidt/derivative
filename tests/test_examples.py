@@ -5,9 +5,12 @@ from derivative import dxdt, smooth_x, methods
 from derivative.differentiation import _gen_method
 
 
+# Utilities for tests
+# ===================
 def default_args(kind):
-    """ The assumption is that the function will have dt = 1/100 over a range of 1 and not vary much. The goal is to
-     to set the parameters such that we obtain effective derivatives under these conditions.
+    """ The assumption is that the function will have dt = 1/100 or 2pi/100 over an interval of length 1 or 2pi
+    and not vary much. The goal is to to set the parameters such that we obtain effective derivatives under these
+    conditions.
     """
     if kind == 'spectral':
         # frequencies should be guaranteed to be between 0 and 50 (a filter will reduce bad outliers)
@@ -26,8 +29,7 @@ def default_args(kind):
         return {"sigma": 1, "lmbd": .01, "kernel": "gaussian"}
     else:
         raise ValueError('Unimplemented default args for kind {}.'.format(kind))
-
-
+    
 class NumericalExperiment:
     def __init__(self, fn, fn_str, t, kind, args):
         self.fn = fn
@@ -39,7 +41,6 @@ class NumericalExperiment:
 
     def run(self):
         return dxdt(self.fn(self.t), self.t, self.kind, self.axis, **self.kwargs)
-
 
 def compare(experiment, truth, rel_tol, abs_tol, shape_only=False):
     """ Compare a numerical experiment to theoretical expectations. Issue warnings for derivative methods that fail,
@@ -60,8 +61,8 @@ def compare(experiment, truth, rel_tol, abs_tol, shape_only=False):
         assert np.linalg.norm(residual, ord=np.inf) < max(abs_tol, np.linalg.norm(truth, ord=np.inf) * rel_tol)
 
 
-# Check that numbers are returned
-# ===============================
+# Check that only numbers are returned
+# ====================================
 @pytest.mark.parametrize("m", methods)
 def test_notnan(m):
     t = np.linspace(0, 1, 100)
@@ -71,8 +72,8 @@ def test_notnan(m):
     assert not np.any(np.isnan(values)), message
 
 
-# Test some basic functions
-# =========================
+# Test that basic functions are differentiated correctly
+# ======================================================
 funcs_and_derivs = (
     (lambda t: np.ones_like(t), "f(t) = 1", lambda t: np.zeros_like(t), "const1"),
     (lambda t: np.zeros_like(t), "f(t) = 0", lambda t: np.zeros_like(t), "const0"),
@@ -81,37 +82,29 @@ funcs_and_derivs = (
     (lambda t: -t, "f(t) = -t", lambda t: -np.ones_like(t), "lin-neg"),
     (lambda t: t ** 2 - t + np.ones_like(t), "f(t) = t^2-t+1", lambda t: 2 * t -np.ones_like(t), "polynomial"),
     (lambda t: np.sin(t) + np.ones_like(t) / 2, "f(t) = sin(t)+1/2", lambda t: np.cos(t), "trig"),
-    (
-        lambda t: np.array([2 * t, - t]),
-        "f(t) = [2t, -t]",
-        lambda t: np.vstack((2 * np.ones_like(t), -np.ones_like(t))),
-        "2D linear",
-    ),
-    (
-        lambda t: np.array([np.sin(t), np.cos(t)]),
-        "f(t) = [sin(t), cos(t)]",
-        lambda t: np.vstack((np.cos(t), -np.sin(t))),
-        "2D trig",
-    ),
+    (lambda t: np.array([2 * t, - t]), "f(t) = [2t, -t]", lambda t: np.vstack((2 * np.ones_like(t), -np.ones_like(t))), "2D linear"),
+    (lambda t: np.array([np.sin(t), np.cos(t)]), "f(t) = [sin(t), cos(t)]", lambda t: np.vstack((np.cos(t), -np.sin(t))),  "2D trig"),
 )
+@pytest.mark.filterwarnings('ignore::sklearn.exceptions.ConvergenceWarning') # some methods can throw these for examples
 @pytest.mark.parametrize("m", methods)
-@pytest.mark.parametrize("func_spec", funcs_and_derivs, ids=(tup[-1] for tup in funcs_and_derivs))
+@pytest.mark.parametrize("func_spec", funcs_and_derivs)
 def test_fn(m, func_spec):
     func, fname, deriv, f_id = func_spec
-    t = np.linspace(0, 2*np.pi, 100)
-    if m == 'trend_filtered':
-        # Add noise to avoid all zeros non-convergence warning for sklearn lasso
-        f_mod = lambda t: func(t) + 1e-9 * np.random.randn(*t.shape) # rename to avoid infinite loop
+    t = np.linspace(0, 2*np.pi, 100, endpoint=False) # For periodic functions, it's important the endpoint not be included
+    if m == "spectral":
+        for t_, basis in zip([t, np.cos(np.pi * np.arange(101) / 100)], ['fourier', 'chebyshev']):
+            args = default_args(m); args['basis'] = basis
+            nexp = NumericalExperiment(func, fname, t_, m, args)
+            # Fourier-spectral is only accurate for periodic data, so only check shape in those cases
+            shape_only = ("lin" in f_id or "poly" in f_id) and basis == "fourier"
+            compare(nexp, deriv(t_), 1e-8, 1e-8, shape_only)
     else:
-        f_mod = func
-    nexp = NumericalExperiment(f_mod, fname, t, m, default_args(m))
-    bad_combo=False
-    # spectral is only accurate for periodic data.  Ideally fixed in decorators
-    if ("lin" in f_id or "poly" in f_id) and m == "spectral":
-        bad_combo=True
-    compare(nexp, deriv(t), 1e-1, 1e-1, bad_combo)
+        nexp = NumericalExperiment(func, fname, t, m, default_args(m))
+        compare(nexp, deriv(t), 1e-1, 1e-1, False)
 
 
+# Test smoothing for those that do it
+# ===================================
 @pytest.mark.parametrize("kind", ("kalman", "trend_filtered"))
 def test_smoothing_x(kind):
     t = np.linspace(0, 1, 100)
@@ -121,7 +114,6 @@ def test_smoothing_x(kind):
     x_est = method.x(x, t)
     # MSE
     assert np.linalg.norm(x_est - np.sin(t)) ** 2 / len(t) < 1e-1
-
 
 @pytest.mark.parametrize("kind", ("kalman", "trend_filtered"))
 def test_smoothing_functional(kind):
@@ -133,12 +125,13 @@ def test_smoothing_functional(kind):
     assert np.linalg.norm(x_est - np.sin(t)) ** 2 / len(t) < 1e-1
 
 
+# Test caching of the expensive _gen_method using a dummy
+# =======================================================
 @pytest.fixture
 def clean_gen_method_cache():
     _gen_method.cache_clear()
     yield
     _gen_method.cache_clear()
-
 
 def test_gen_method_caching(clean_gen_method_cache):
     x = np.ones(3)
@@ -149,7 +142,6 @@ def test_gen_method_caching(clean_gen_method_cache):
     assert _gen_method.cache_info().misses == 1
     assert _gen_method.cache_info().currsize == 1
     assert id(expected) == id(result)
-
 
 def test_gen_method_kwarg_caching(clean_gen_method_cache):
     x = np.ones(3)
@@ -164,6 +156,8 @@ def test_gen_method_kwarg_caching(clean_gen_method_cache):
     assert id(expected) != id(result)
 
 
+# Test caching of the expensive private _global methods using a dummy
+# ===================================================================
 @pytest.fixture
 def method_inst(request):
     x = np.ones(3)
@@ -173,9 +167,9 @@ def method_inst(request):
     yield x, t, method
     method._global.cache_clear()
 
-
+@pytest.mark.filterwarnings('ignore::sklearn.exceptions.ConvergenceWarning')
 @pytest.mark.parametrize("method_inst", ["kalman", "trend_filtered"], indirect=True)
-def test_dglobal_caching(method_inst):
+def test_global_caching_xd(method_inst):
     # make sure we're not recomputing expensive _global() method
     x, t, method = method_inst
     method.x(x, t)
@@ -184,11 +178,11 @@ def test_dglobal_caching(method_inst):
     assert method._global.cache_info().misses == 1
     assert method._global.cache_info().currsize == 1
 
-
+@pytest.mark.filterwarnings('ignore::sklearn.exceptions.ConvergenceWarning')
 @pytest.mark.parametrize("method_inst", ["kalman", "trend_filtered"], indirect=True)
 def test_cached_global_order(method_inst):
     x, t, method = method_inst
     x = np.vstack((x, -x))
-    first_result = method.x(x, t)
-    second_result = method.x(x, t)
+    first_result = method.x(x, t, axis=1)
+    second_result = method.x(x, t, axis=1)
     np.testing.assert_equal(first_result, second_result)
