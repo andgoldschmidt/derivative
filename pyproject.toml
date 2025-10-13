@@ -1,44 +1,48 @@
 [build-system]
-requires = ["poetry-core>=1.1.0"]
-build-backend = "poetry.core.masonry.api"
+requires = ["setuptools", "wheel"]
+build-backend = "setuptools.build_meta"
 
-[tool.poetry]
+[tool.setuptools.packages.find]
+where = ["."]
+include = ["derivative*"]
+
+[project]
 name = "derivative"
 version = "0.6.3"
 description = "Numerical differentiation in python."
-repository = "https://github.com/andgoldschmidt/derivative"
-documentation = "https://derivative.readthedocs.io/"
-keywords = ["differentiation", "derivative", "gradient", "prime"]
-authors = [
-    "Andy Goldschmidt <andygold@uchicago.edu>",
-    "Markus Quade <info@markusqua.de>",
-    "Jacob Stevens-Haas <jmsh@uw.edu>"
-]
-license = "MIT"
 readme = "README.rst"
+requires-python = ">=3.9,<4"
+license-files = ["LICENSE.rst"]
+authors = [
+    { name = "Andy Goldschmidt", email = "andygold@uchicago.edu" },
+    { name = "Markus Quade", email = "info@markusqua.de" },
+    { name = "Jacob Stevens-Haas", email = "jmsh@uw.edu" },
+]
+keywords = ["differentiation", "derivative", "gradient", "prime"]
+dependencies = [
+    "numpy>=1.18.3",
+    "scipy>=1.4.1,<2.0.0",
+    "scikit-learn>=1,<2",
+    "importlib-metadata>=7.1.0",
+    "spectral-derivatives>=0.8",
+]
 
-[tool.poetry.dependencies]
-python = "^3.9"
-numpy = ">=1.18.3"
-scipy = "^1.4.1"
-scikit-learn = "^1"
-importlib-metadata = ">=7.1.0"
-spectral-derivatives = ">=0.8"
+[project.optional-dependencies]
+docs = [
+    "sphinx==7.2.6",
+    "nbsphinx>=0.9.5,<1.0.0",
+    "matplotlib>=3.2.1,<4.0.0",
+    "ipython>=8.0.0,!=8.7.0,!=8.18.1,<9.0.0",
+    "ipykernel>=6.0.0,<7.0.0",
+]
+dev = [
+    "asv>=0.6,<1.0.0",
+    "pytest>=7",
+]
 
-# docs
-sphinx = {version = "7.2.6", optional = true}
-nbsphinx = {version = "^0.9.5", optional = true}
-matplotlib = {version = "^3.2.1", optional = true}
-ipython = {version = "^8.0.0, !=8.7.0, !=8.18.1", optional = true}
-ipykernel = {version = "^6.0.0", optional = true}
+[project.urls]
+Repository = "https://github.com/andgoldschmidt/derivative"
+Documentation = "https://derivative.readthedocs.io/"
 
-# dev
-asv = {version = "^0.6", optional = true}
-pytest = {version = ">=7", optional = true}
-
-[tool.poetry.extras]
-docs = ["sphinx", "nbsphinx", "matplotlib", "ipython", "ipykernel"]
-dev = ["asv", "pytest"]
-
-[tool.poetry.plugins.'derivative.hyperparam_opt']
+[project.entry-points."derivative.hyperparam_opt"]
 "kalman.default" = "derivative.utils:_default_kalman"
