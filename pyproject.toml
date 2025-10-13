@@ -1,5 +1,5 @@
 [build-system]
-requires = ["setuptools", "wheel"]
+requires = ["setuptools", "setuptools-scm"]
 build-backend = "setuptools.build_meta"
 
 [tool.setuptools.packages.find]
@@ -11,7 +11,7 @@ name = "derivative"
 version = "0.6.3"
 description = "Numerical differentiation in python."
 readme = "README.rst"
-requires-python = ">=3.9,<4"
+requires-python = ">=3.9"
 license-files = ["LICENSE.rst"]
 authors = [
     { name = "Andy Goldschmidt", email = "andygold@uchicago.edu" },
@@ -21,8 +21,8 @@ authors = [
 keywords = ["differentiation", "derivative", "gradient", "prime"]
 dependencies = [
     "numpy>=1.18.3",
-    "scipy>=1.4.1,<2.0.0",
-    "scikit-learn>=1,<2",
+    "scipy>=1.4.1",
+    "scikit-learn>=1.0.0",
     "importlib-metadata>=7.1.0",
     "spectral-derivatives>=0.8",
 ]
@@ -30,13 +30,13 @@ dependencies = [
 [project.optional-dependencies]
 docs = [
     "sphinx==7.2.6",
-    "nbsphinx>=0.9.5,<1.0.0",
-    "matplotlib>=3.2.1,<4.0.0",
-    "ipython>=8.0.0,!=8.7.0,!=8.18.1,<9.0.0",
-    "ipykernel>=6.0.0,<7.0.0",
+    "nbsphinx==0.9.5",
+    "matplotlib",
+    "ipython",
+    "ipykernel",
 ]
 dev = [
-    "asv>=0.6,<1.0.0",
+    "asv",
     "pytest>=7",
 ]
 
