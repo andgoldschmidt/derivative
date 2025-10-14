@@ -9,8 +9,8 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        python-version: ["3.9"]
-        poetry-version: ["1.2.1"]
+        python-version: ["3.9", "3.10", "3.11", "3.12"]
+        poetry-version: [ "2.2.1" ]
 
     steps:
       # ======
@@ -65,8 +65,8 @@ jobs:
     runs-on: ubuntu-22.04
     strategy:
       matrix:
-        python-version: ["3.9"]
-        poetry-version: ["1.2.1"]
+        python-version: ["3.9", "3.10", "3.11", "3.12"]
+        poetry-version: [ "2.2.1" ]
     steps:
       # ======
       # Checkout, set up python
