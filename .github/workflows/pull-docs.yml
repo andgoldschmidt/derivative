@@ -8,46 +8,19 @@ jobs:
     strategy:
       matrix:
         python-version: [ "3.11" ]
-        poetry-version: [ "2.2.1" ]
     steps:
       # ======
-      # Checkout, set up python
+      # Checkout, set up python and uv
       # ======
       - name: Check out
-        uses: actions/checkout@v4
-      - name: Set up Python ${{ matrix.python-version }}
-        uses: actions/setup-python@v4
+        uses: actions/checkout@v5
+      - name: Install the latest version of uv
+        uses: astral-sh/setup-uv@v7
         with:
           python-version: ${{ matrix.python-version }}
-      # ======
-      # Install and configure poetry from cache
-      # ======
-      - name: Load cached Poetry installation
-        id: cached-poetry
-        uses: actions/cache@v4
-        with:
-          path: ~/.local  # the path depends on the OS
-          key: poetry-${{ matrix.poetry-version }}
-      - name: Install poetry
-        if: steps.cached-poetry.outputs.cache-hit != 'true'
-        uses: snok/install-poetry@v1
-        with:
-          version: ${{ matrix.poetry-version }}
-          virtualenvs-create: true
-          virtualenvs-in-project: true
-      # ======
-      # Load cached venv if cache exists
-      # Install dependencies if cache does not exist
-      # ======
-      - name: Load cached venv
-        id: cached-poetry-dependencies-docs
-        uses: actions/cache@v4
-        with:
-          path: .venv
-          key: docs-${{ matrix.python-version }}-${{ matrix.poetry-version }}-${{ hashFiles('**/poetry.lock') }}
+          activate-environment: "true"
       - name: Install dependencies
-        if: steps.cached-poetry-dependencies.outputs.cache-hit != 'true'
-        run: poetry install --no-interaction -E docs
+        run: uv pip install .[docs]
       # ======
       # Install Pandoc
       # ======
