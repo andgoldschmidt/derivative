@@ -27,9 +27,9 @@ jobs:
       - name: Use pandoc (external to Poetry)
         uses: nikeee/setup-pandoc@v1
 #        uses: docker://pandoc/latex:2.9
-      - run: pip install pandoc
+      - run: uv pip install pandoc
       # ======
       # Run test suite
       # ======
       - name: Make docs
-        run: poetry run sphinx-build docs docs/_build
+        run: uv run sphinx-build docs docs/_build
