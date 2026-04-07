@@ -30,7 +30,7 @@ Numerical differentiation methods for noisy time series data in python includes:
     import numpy as np
 
     t = np.linspace(0,2*np.pi,50)
-    x = np.sin(x)
+    x = np.sin(t)
 
     # 1. Finite differences with central differencing using 3 points.
     result1 = dxdt(x, t, kind="finite_difference", k=1)
